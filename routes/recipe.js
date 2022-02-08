@@ -9,6 +9,7 @@ const auth = require('../middleware/auth');
 
 const Recipe = require('../models/Recipe');
 const Ingredient = require('../models/Ingredient');
+const User = require('../models/User');
 
 // @POST create recipe
 router.post('/', auth, [
@@ -19,35 +20,50 @@ router.post('/', auth, [
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array(), error: true });
     }
+    try {
+        let {name, ingredients, price = 0} = req.body;
+        const _user = await User.findOne({_id: req.user.id});
 
-    let {name, ingredients, price = '$0.00'} = req.body;
-
-    ingredients.forEach(ing => {
-        
-    });
-
-    const user = req.user.id;
-
-    let recipe = await Recipe.findOne({name: name, user: user});
-
-    if (recipe) {
-        recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price}}, {new: true});
-        const recipes = await Recipe.find({ user: user });
-        if (!recipes[0]) {
-            return res.status(400).json({ msg: 'Recipe Updated But Recipes Not Found', error: true });
+        if (!_user) {
+            return res.status(400).json({msg: 'User Not Found R3', error: true})
         }
-        return res.json({recipes: recipes, error: false});
+
+        ingredients.forEach(ing => {
+            let _price = ing.price; 
+            _price = _price.split(_user.preferences.money).join('');
+            _price = parseFloat(_price);
+            price = price + _price;
+        });
+
+        price = `${_user.preferences.money}${price}`;
+
+        const user = req.user.id;
+
+        let recipe = await Recipe.findOne({name: name, user: user});
+
+        if (recipe) {
+            recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price}}, {new: true});
+            const recipes = await Recipe.find({ user: user });
+            if (!recipes[0]) {
+                return res.status(400).json({ msg: 'Recipe Updated But Recipes Not Found', error: true });
+            }
+            return res.json({recipes: recipes, error: false});
+        }
+
+        recipe = new Recipe({
+            name,
+            ingredients,
+            price,
+            user
+        });
+        await recipe.save();
+
+        res.json({ msg: `Recipe ${name} Create Successfully`, error: false })
+        
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({msg: 'Server Error R2', errror: true});
     }
-
-    recipe = new Recipe({
-        name,
-        ingredients,
-        price,
-        user
-    });
-    await recipe.save();
-
-    res.json({ msg: `Recipe ${name} Create Successfully`, error: false })
 });
 
 // @GET get all recipes for current user
