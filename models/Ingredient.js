@@ -7,8 +7,7 @@ const IngredientSchema = new mon.Schema({
     },
     name: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     price: {
         type: String

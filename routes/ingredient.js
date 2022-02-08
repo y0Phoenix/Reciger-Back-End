@@ -1,0 +1,41 @@
+const express = require('express');
+const router = express.Router();
+const { check, validationResult } = require('express-validator');
+const gravatar = require('gravatar');
+const bc = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const config = require('config');
+const auth = require('../middleware/auth');
+
+const Ingredient = require('../models/Ingredient');
+const Recipe = require('../models/Recipe');
+
+// @POST create ingredient
+router.post('/', auth, [
+    check('name', 'Ingredient Name Is Required').not().isEmpty(),
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    const {name, price = '$0.00'} = req.body;
+    const user = req.user.id;
+
+    let ingredient = await Ingredient.find({name: name}, {user: user});
+    if (ingredient[0]) {
+        return res.status(400).json({ errors: [{ msg: 'Ingredient Already Exists' }] });
+    }
+
+    ingredient = new Ingredient({
+        name,
+        price,
+        user
+    });
+
+    await ingredient.save();
+
+    res.json({ msg: 'Ingredient Created Successfully' });
+});
+
+module.exports = router;

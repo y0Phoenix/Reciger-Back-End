@@ -22,7 +22,7 @@ router.post('/', auth, [
     let {name, ingredients, price = '$0.00'} = req.body;
     const user = req.user;
 
-    let recipe = Recipe.findOne(name);
+    let recipe = await Recipe.find({name: name}, {user: user.id});
 
     if (recipe) {
         return res.status(400).json({ errors: [{msg: `Recipe ${name} Already Exists`}] });
@@ -37,4 +37,6 @@ router.post('/', auth, [
     await recipe.save();
 
     res.json({ msg: `Recipe ${name} Create Successfully` })
-})
+});
+
+module.exports = router;
