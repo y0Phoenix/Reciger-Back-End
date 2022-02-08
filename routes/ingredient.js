@@ -9,6 +9,8 @@ const auth = require('../middleware/auth');
 
 const Ingredient = require('../models/Ingredient');
 const Recipe = require('../models/Recipe');
+const User = require('../models/User');
+const updateRecipePrice = require('../functions/updateRecipePrice');
 
 // @POST create ingredient
 router.post('/', auth, [
@@ -20,7 +22,7 @@ router.post('/', auth, [
             return res.status(400).json({errors: errors.array(), error: true});
         }
 
-        const {name, price = '$0.00'} = req.body;
+        const {name, price = '$0.00', units = {weight: ['oz'], volume: ['floz'], prefered: 'floz'}} = req.body;
         const user = req.user.id;
 
         let ingredient = await Ingredient.find({name: name}, {user: user});
@@ -31,7 +33,8 @@ router.post('/', auth, [
         ingredient = new Ingredient({
             name,
             price,
-            user
+            user,
+            units
         });
 
         await ingredient.save();
@@ -66,19 +69,22 @@ router.post('/update', [
         if (!recipes[0]) {
             return res.status(400).json({errors: [{msg: 'Error While Updating Ingredient'}], error: true});
         }
-        const update = async () => {
-            recipes.forEach(async recipe => {
-                let rec = await Recipe.findById(recipe.id);
-                    rec.ingredients.forEach(ing => {
-                        if (ing.id === ingredient.id) {
-                            ing.name = ingredient.name;
-                            ing.price = ingredient.price;   
-                        }
-                    });
-                rec.save();
-            });
-        };
-        await update();
+        const _user = await User.findById(ingredient.user);
+        if (!_user) {
+            return res.status(400).json({msg: 'User Not Found', error: true});
+        }
+        for (let i = 0; i < recipes.length; i++) {
+            let rec = await Recipe.findById(recipes[i].id);
+            for (let j = 0; j < rec.ingredients.length; j++) {
+                if (rec.ingredients[j].id === ingredient.id) {
+                    rec.ingredients[j].name = ingredient.name;
+                    rec.ingredients[j].price = ingredient.price;   
+                }
+            }
+            let price = await updateRecipePrice(rec.ingredients, _user.preferences.money);
+            rec.price = price;
+            await rec.save();
+        }
         res.json({msg: 'Ingredient Updated Successfully', error: false});
     }
     catch(err) {

@@ -6,6 +6,7 @@ const bc = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const auth = require('../middleware/auth');
+const updateRecipePrice = require('../functions/updateRecipePrice');
 
 const Recipe = require('../models/Recipe');
 const Ingredient = require('../models/Ingredient');
@@ -28,14 +29,7 @@ router.post('/', auth, [
             return res.status(400).json({msg: 'User Not Found R3', error: true})
         }
 
-        ingredients.forEach(ing => {
-            let _price = ing.price; 
-            _price = _price.split(_user.preferences.money).join('');
-            _price = parseFloat(_price);
-            price = price + _price;
-        });
-
-        price = `${_user.preferences.money}${price}`;
+        price = await updateRecipePrice(ingredients, _user.preferences.money);
 
         const user = req.user.id;
 

@@ -11,6 +11,18 @@ const IngredientSchema = new mon.Schema({
     },
     price: {
         type: String
+    },
+    units: {
+        prefered: {
+            type: String,
+            required: true
+        },
+        weight: {
+            type: [String],
+        },
+        volume: {
+            type: [String]
+        }
     }
 });
 
