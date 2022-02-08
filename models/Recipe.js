@@ -7,7 +7,8 @@ const RecipeSchema = new mon.Schema({
     },
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     ingredients: {
         type: [mon.Schema.Types.ObjectId],
