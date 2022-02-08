@@ -14,6 +14,10 @@ const RecipeSchema = new mon.Schema({
             type: mon.Schema.Types.ObjectId,
             required: true
         },
+        quantity: {
+            type: String,
+            required: true
+        },
         price: {
             type: String
         },

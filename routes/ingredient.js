@@ -16,7 +16,7 @@ router.post('/', auth, [
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
+        return res.status(400).json({errors: errors.array(), error: true});
     }
 
     const {name, price = '$0.00'} = req.body;
@@ -24,7 +24,7 @@ router.post('/', auth, [
 
     let ingredient = await Ingredient.find({name: name}, {user: user});
     if (ingredient[0]) {
-        return res.status(400).json({ errors: [{ msg: 'Ingredient Already Exists' }] });
+        return res.status(400).json({ errors: [{ msg: 'Ingredient Already Exists' }], error: true });
     }
 
     ingredient = new Ingredient({
@@ -35,7 +35,7 @@ router.post('/', auth, [
 
     await ingredient.save();
 
-    res.json({ msg: 'Ingredient Created Successfully' });
+    res.json({ msg: 'Ingredient Created Successfully', error: false });
 });
 
 // @GET get all ingrdients for user
@@ -45,13 +45,13 @@ router.get('/', auth, async (req, res) => {
         const ingredients = await Ingredient.find({user: id});
     
         if (!ingredients[0]) {
-            return res.status(400).json({errors: [{msg: 'No Ingredients Found'}]});
+            return res.status(400).json({errors: [{msg: 'No Ingredients Found', error: true}]});
         }
     
         res.json(ingredients);
     } catch (err) {
         console.error(err);
-        res.status(500).json({msg: 'Server Error I1'});
+        res.status(500).json({msg: 'Server Error I1', error: true});
     }
 });
 

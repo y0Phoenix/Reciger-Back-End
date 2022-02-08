@@ -8,7 +8,11 @@ const UserSchema = new mon.Schema({
     preferences: {
         measurements: {
             type: [String],
-            required: true
+            default: ['oz', 'floz']
+        },
+        money: {
+            type: String,
+            default: '$'
         }
     },
     avatar: {

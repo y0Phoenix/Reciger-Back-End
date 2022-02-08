@@ -15,7 +15,7 @@ router.post('/', [
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
+        return res.status(400).json({errors: errors.array(), error: true});
     }
 
     const {email, password} = req.body;
@@ -23,12 +23,12 @@ router.post('/', [
     try {
         let user = await User.findOne({email});
         if (!user) {
-            return res.status(404).json({errors: [{msg: 'Invalid Credentials'}]});
+            return res.status(404).json({errors: [{msg: 'Invalid Credentials', error: true}]});
         }
         const bool = bc.compare(password, user.password);
 
         if (!bool) {
-            return res.status(400).json({errors: [{msg: 'Invalid Credentials'}]});
+            return res.status(400).json({errors: [{msg: 'Invalid Credentials', error: true}]});
         }
         const payload = {
             user: {
@@ -37,13 +37,13 @@ router.post('/', [
         };
         jwt.sign(payload, config.get('jwtSecret'), {expiresIn: 3600000}, (err, token) => {
             if (err) throw err;
-            res.json({token});
+            res.json({token: token, error: false});
         });
 
         console.log(req.body);
     } catch (err) {
         console.error(err);
-        res.status(400).json({msg: 'Server Error U1'});
+        res.status(400).json({msg: 'Server Error U1', error: true});
     }
 });
 
