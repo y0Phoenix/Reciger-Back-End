@@ -38,6 +38,32 @@ router.post('/', auth, [
     res.json({ msg: 'Ingredient Created Successfully', error: false });
 });
 
+router.post('/update', [
+    check('price', 'Please Specify A New Price Or Name To Update').not().isEmpty(),
+    check('_id', '_id Is Required').not().isEmpty()
+], auth, async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), error: true});
+        }
+        const {name, price, _id} = req.body;
+        let ingredient = await Ingredient.findOne({_id: _id});
+        if (!ingredient) {
+            return res.status(400).json({errors: [{msg: 'Ingredient Not Found Try Again Later'}], error: true});
+        }
+        ingredient = await Ingredient.findOneAndUpdate({_id: _id}, {$set: {name, price}}, {new: true});
+        if (!ingredient) {
+            return res.status(400).json({errors: [{msg: 'Ingredient Not Updated I2'}], error: true});
+        }
+        res.json({ingredient: ingredient, error: false});
+    }
+    catch(err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+})
+
 // @GET get all ingrdients for user
 router.get('/', auth, async (req, res) => {
     try {
