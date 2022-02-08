@@ -8,6 +8,7 @@ const config = require('config');
 const auth = require('../middleware/auth');
 
 const Recipe = require('../models/Recipe');
+const Ingredient = require('../models/Ingredient');
 
 // @POST create recipe
 router.post('/', auth, [
@@ -20,11 +21,11 @@ router.post('/', auth, [
     }
 
     let {name, ingredients, price = '$0.00'} = req.body;
-    const user = req.user;
+    const user = req.user.id;
 
-    let recipe = await Recipe.find({name: name}, {user: user.id});
+    let recipe = await Recipe.find({name: name}, {user: user});
 
-    if (recipe) {
+    if (recipe[0]) {
         return res.status(400).json({ errors: [{msg: `Recipe ${name} Already Exists`}] });
     }
 
@@ -38,5 +39,22 @@ router.post('/', auth, [
 
     res.json({ msg: `Recipe ${name} Create Successfully` })
 });
+
+// @GET get all recipes for current user
+router.get('/', auth, async (req, res) => {
+    try {
+        const id = req.user.id;
+        const recipes = await Recipe.find({user: id});
+    
+        if (!recipes[0]) {
+            return res.status(400).json({errors: [{msg: 'No Recipes Found For You'}]});
+        }
+
+        res.json(recipes);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({msg: 'Server Error R1'});
+    }
+})
 
 module.exports = router;

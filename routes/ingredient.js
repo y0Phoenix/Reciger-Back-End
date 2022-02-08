@@ -38,4 +38,21 @@ router.post('/', auth, [
     res.json({ msg: 'Ingredient Created Successfully' });
 });
 
+// @GET get all ingrdients for user
+router.get('/', auth, async (req, res) => {
+    try {
+        const id = req.user.id;
+        const ingredients = await Ingredient.find({user: id});
+    
+        if (!ingredients[0]) {
+            return res.status(400).json({errors: [{msg: 'No Ingredients Found'}]});
+        }
+    
+        res.json(ingredients);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({msg: 'Server Error I1'});
+    }
+});
+
 module.exports = router;

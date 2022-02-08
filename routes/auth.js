@@ -43,7 +43,7 @@ router.post('/', [
         console.log(req.body);
     } catch (err) {
         console.error(err);
-        res.status(400).json({msg: 'Server Error'});
+        res.status(400).json({msg: 'Server Error U1'});
     }
 });
 

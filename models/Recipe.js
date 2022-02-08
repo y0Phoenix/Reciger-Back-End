@@ -9,10 +9,23 @@ const RecipeSchema = new mon.Schema({
         type: String,
         required: true
     },
-    ingredients: {
-        type: [mon.Schema.Types.ObjectId],
-        required: true
-    },
+    ingredients: [{
+        _id: {
+            type: mon.Schema.Types.ObjectId,
+            required: true
+        },
+        price: {
+            type: String
+        },
+        name: {
+            type: String,
+            required: true
+        },
+        user: {
+            type: mon.Schema.Types.ObjectId,
+            required: true
+        }
+    }],
     price: {
         type: String
     }
