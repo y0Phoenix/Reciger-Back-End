@@ -1,3 +1,6 @@
 {
-    "mongoURI": 
+    "mongoURI": "mongodb+srv://aaron:liftuppBBio@*19@cluster0.o4bg4.mongodb.net/Recipe-Manager-DataBase?retryWrites=true&w=majority",
+    "jwtSecret": "mysecrettoken",
+    "githubClientId": "b1916522145f23c49c4a",
+    "githubSecret": "7c2d48a91b53f2234e82f754cf9962b0ac8d5603"
 }
