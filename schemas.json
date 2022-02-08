@@ -4,7 +4,9 @@
         "preferences": {
             "measurements": []
         },
-        "avatar": "string(gravatar)"
+        "avatar": "string(gravatar)",
+        "password": "string",
+        "email": "string"
     },
     "ingredients": [
         {
