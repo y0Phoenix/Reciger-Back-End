@@ -19,7 +19,7 @@ router.post('/', auth, [
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({errors: errors.array(), error: true});
+            return res.status(400).json({msgs: errors.array(), error: true});
         }
 
         const {name, price = '$0.00', units = {weight: ['oz'], volume: ['floz'], prefered: 'floz'}} = req.body;
@@ -27,7 +27,7 @@ router.post('/', auth, [
 
         let ingredient = await Ingredient.find({name: name}, {user: user});
         if (ingredient[0]) {
-            return res.status(400).json({ errors: [{ msg: 'Ingredient Already Exists' }], error: true });
+            return res.status(400).json({ msgs: [{ msg: 'Ingredient Already Exists' }], error: true });
         }
 
         ingredient = new Ingredient({
@@ -39,7 +39,7 @@ router.post('/', auth, [
 
         await ingredient.save();
 
-        res.json({ msg: `Ingredient ${ingredient.name} Created Successfully`, error: false });
+        res.json({ msgs: [{msg: `Ingredient ${ingredient.name} Created Successfully`}], error: false });
     }
     catch(err) {
         console.error(err);
@@ -54,24 +54,24 @@ router.post('/update', [
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({errors: errors.array(), error: true});
+            return res.status(400).json({msgs: errors.array(), error: true});
         }
         const {name, price, _id} = req.body;
         let ingredient = await Ingredient.findOne({_id: _id});
         if (!ingredient) {
-            return res.status(400).json({errors: [{msg: 'Ingredient Not Found Try Again Later'}], error: true});
+            return res.status(400).json({msgs: [{msg: 'Ingredient Not Found Try Again Later'}], error: true});
         }
         ingredient = await Ingredient.findOneAndUpdate({_id: _id}, {$set: {name, price}}, {new: true});
         if (!ingredient) {
-            return res.status(400).json({errors: [{msg: 'Ingredient Not Updated I2'}], error: true});
+            return res.status(400).json({msgs: [{msg: 'Ingredient Not Updated I2'}], error: true});
         }
         let recipes = await Recipe.find({user: req.user.id});
         if (!recipes[0]) {
-            return res.status(400).json({errors: [{msg: 'Error While Updating Ingredient'}], error: true});
+            return res.status(400).json({msgs: [{msg: 'Error While Updating Ingredient'}], error: true});
         }
         const _user = await User.findById(ingredient.user);
         if (!_user) {
-            return res.status(400).json({msg: 'User Not Found', error: true});
+            return res.status(400).json({msgs: [{msg: 'User Not Found'}], error: true});
         }
         for (let i = 0; i < recipes.length; i++) {
             let rec = await Recipe.findById(recipes[i].id);
@@ -85,7 +85,7 @@ router.post('/update', [
             rec.price = price;
             await rec.save();
         }
-        res.json({msg: 'Ingredient Updated Successfully', error: false});
+        res.json({msgs: [{msg: 'Ingredient Updated Successfully'}], error: false});
     }
     catch(err) {
         console.error(err);
@@ -100,7 +100,7 @@ router.get('/', auth, async (req, res) => {
         const ingredients = await Ingredient.find({user: id});
     
         if (!ingredients[0]) {
-            return res.status(400).json({errors: [{msg: 'No Ingredients Found', error: true}]});
+            return res.status(400).json({msgs: [{msg: 'No Ingredients Found', error: true}]});
         }
     
         res.json(ingredients);
@@ -116,7 +116,7 @@ router.delete('/', auth, async (req, res) => {
     try {
         let ingredient = await Ingredient.findById(_id);
         if (!ingredient) {
-            return res.status(400).json({errors: [{msg: 'Ingredient Not Found'}], error: true});
+            return res.status(400).json({msgs: [{msg: 'Ingredient Not Found'}], error: true});
         }
         await Ingredient.findByIdAndRemove(_id);
         ingredient = await Ingredient.findById(_id);
@@ -135,9 +135,9 @@ router.delete('/', auth, async (req, res) => {
                 }
                 await recipe.save();
             }
-            return res.json({msg: 'Ingredient Deleted Successfully', error: false})
+            return res.json({msgs: [{msg: 'Ingredient Deleted Successfully'}], error: false})
         }
-        res.status(400).json({errors: [{msg: 'There Was A Problem Deleting This Ingredient'}], error: true});
+        res.status(400).json({msgs: [{msg: 'There Was A Problem Deleting This Ingredient'}], error: true});
     }
     catch(err) {
         console.error(err);

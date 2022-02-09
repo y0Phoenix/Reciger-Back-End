@@ -19,7 +19,7 @@ router.post('/', auth, [
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array(), error: true });
+        return res.status(400).json({ msgs: errors.array(), error: true });
     }
     try {
         let {name, ingredients, price = 0} = req.body;
@@ -39,7 +39,7 @@ router.post('/', auth, [
             recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price}}, {new: true});
             const recipes = await Recipe.find({ user: user });
             if (!recipes[0]) {
-                return res.status(400).json({ msg: 'Recipe Updated But Recipes Not Found', error: true });
+                return res.status(400).json({ msgs: [{msg: 'Recipe Updated But Recipes Not Found'}], error: true });
             }
             return res.json({recipes: recipes, error: false});
         }
@@ -52,7 +52,7 @@ router.post('/', auth, [
         });
         await recipe.save();
 
-        res.json({ msg: `Recipe ${name} Create Successfully`, error: false })
+        res.json({ msgs: [{msg: `Recipe ${name} Create Successfully`}], error: false })
         
     } catch (err) {
         console.error(err);
@@ -67,7 +67,7 @@ router.get('/', auth, async (req, res) => {
         const recipes = await Recipe.find({user: id});
     
         if (!recipes[0]) {
-            return res.status(400).json({errors: [{msg: 'No Recipes Found For You'}], error: true});
+            return res.status(400).json({msgs: [{msg: 'No Recipes Found For You'}], error: true});
         }
 
         res.json(recipes);
@@ -78,6 +78,24 @@ router.get('/', auth, async (req, res) => {
 });
 
 // @DELETE delete a recipe
-router.delete
+router.delete('/', auth, async (req, res) => {
+    const {_id} = req.body;
+    try {
+        let recipe = await Recipe.findById(_id);
+        if (!recipe) {
+            return res.status(400).json({msgs: [{msg: 'Recipe Not Found Try Again Later'}], error: true});
+        }
+        await Recipe.findByIdAndDelete(_id);
+        recipe = await Recipe.findById(_id);
+        if (recipe) {
+            return res.status(400).json({msgs: [{msg: 'Something Went Wrong While Trying To Delete This Recipe Try Again Later'}], error: true});
+        }
+        res.json({msg: 'Recipe Deleted Successfully'});
+    }
+    catch(err) {
+        console.error(err);
+        res.status(500).json({msg: 'Server Error R4', error: true});
+    }
+})
 
 module.exports = router;
