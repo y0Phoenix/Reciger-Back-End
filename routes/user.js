@@ -137,6 +137,11 @@ router.delete('/', auth, async (req, res) => {
                 }
             }
         }
+        await User.findByIdAndDelete(id);
+        user = await User.findById(id);
+        if (user) {
+            return res.status(400).json({msgs: [{msg: 'Error While Deleting User Try Again Later'}], error: true});
+        }
         res.json({msgs: [{msg: 'User Deleted Successfully Now Redirecting To The Home Page'}], error: false})
     }
     catch(err) {
