@@ -75,6 +75,9 @@ router.get('/', auth, async (req, res) => {
         console.error(err);
         res.status(500).json({msg: 'Server Error R1', error: true});
     }
-})
+});
+
+// @DELETE delete a recipe
+router.delete
 
 module.exports = router;
