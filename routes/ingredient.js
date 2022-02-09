@@ -110,4 +110,39 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
+// @DELETE delete an ingredient
+router.delete('/', auth, async (req, res) => {
+    const {_id} = req.body;
+    try {
+        let ingredient = await Ingredient.findById(_id);
+        if (!ingredient) {
+            return res.status(400).json({errors: [{msg: 'Ingredient Not Found'}], error: true});
+        }
+        await Ingredient.findByIdAndRemove(_id);
+        ingredient = await Ingredient.findById(_id);
+        if (!ingredient) {
+            const recipes = await Recipe.find({user: req.user.id});
+            if (!recipes[0]) {
+                return res.status(400).json({msg: 'No Recipes Found For User', error: true});
+            }
+            for (let i = 0; i < recipes.length; i++) {
+                let recipe = await Recipe.findById(recipes[0].id);
+                for (let j = 0; j < recipe.ingredients.length; j++) {
+                    if (recipe.ingredients[j].id === _id) {
+                        recipe.ingredients.push({name: recipe.ingredients[j].name, user: req.user.id});
+                        recipe.ingredients.splice(j, 1);
+                    }
+                }
+                await recipe.save();
+            }
+            return res.json({msg: 'Ingredient Deleted Successfully', error: false})
+        }
+        res.status(400).json({errors: [{msg: 'There Was A Problem Deleting This Ingredient'}], error: true});
+    }
+    catch(err) {
+        console.error(err);
+        res.status(500).json({msg: 'Server Error I5', error: true});
+    }
+})
+
 module.exports = router;

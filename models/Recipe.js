@@ -12,16 +12,16 @@ const RecipeSchema = new mon.Schema({
     ingredients: [{
         _id: {
             type: mon.Schema.Types.ObjectId,
-            required: true
+            default: null
         },
         quantity: {
             unit: {
                 type: String,
-                required: true
+                default: null
             },
             amount: {
                 type: Number,
-                required: true
+                default: null
             }
         },
         price: {
@@ -37,6 +37,9 @@ const RecipeSchema = new mon.Schema({
         }
     }],
     price: {
+        type: String
+    },
+    category: {
         type: String
     }
 });

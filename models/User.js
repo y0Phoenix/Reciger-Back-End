@@ -30,6 +30,9 @@ const UserSchema = new mon.Schema({
         type: String,
         unique: true,
         required: true
+    },
+    categories: {
+        type: [String],
     }
 });
 

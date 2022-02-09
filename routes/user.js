@@ -71,7 +71,7 @@ router.post('/', [
 // @POST update user
 router.post('/update', auth, async (req, res) => {
     try {
-        let {name = null, preferences = null, password = null, email = null} = req.body;
+        let {name = null, preferences = null, password = null, email = null, categories = null} = req.body;
         const id = req.user.id;
         let user = await User.findById(id);
     
@@ -89,7 +89,8 @@ router.post('/update', auth, async (req, res) => {
             preferences: preferences ? preferences : user.preferences,
             password: password ? await bc.hash(password, await bc.genSalt(10)) : user.password,
             email: email ? email : user.email,
-            avatar: user.avatar
+            avatar: user.avatar,
+            categories: categories ? categories : user.categories
         };
         console.log(fields);
         user = await User.findOneAndUpdate({user: id}, {$set: fields}, {new: true});
