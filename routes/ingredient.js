@@ -22,7 +22,12 @@ router.post('/', auth, [
             return res.status(400).json({msgs: errors.array(), error: true});
         }
 
-        const {name, price = '$0.00', units = {weight: ['oz'], volume: ['floz'], prefered: 'floz'}} = req.body;
+        const {
+            name, 
+            price = '$0.00', 
+            units = {weight: ['oz'], volume: ['floz'], prefered: user.preferences.measurements[0]}, 
+            categories,
+        } = req.body;
         const user = req.user.id;
 
         let ingredient = await Ingredient.find({name: name}, {user: user});
@@ -34,12 +39,14 @@ router.post('/', auth, [
             name,
             price,
             user,
-            units
+            units,
+            categories
         });
 
         await ingredient.save();
+        const ingredients = await Ingredient.find({user: user});
 
-        res.json({ msgs: [{msg: `Ingredient ${ingredient.name} Created Successfully`}], error: false });
+        res.json({ msgs: [{msg: `Ingredient ${ingredient.name} Created Successfully`}], error: false, data: ingredients});
     }
     catch(err) {
         console.error(err);
@@ -47,45 +54,41 @@ router.post('/', auth, [
     }
 });
 
+// @POST update ingredient
 router.post('/update', [
     check('price', 'Please Specify A New Price Or Name To Update').not().isEmpty(),
-    check('_id', '_id Is Required').not().isEmpty()
+    check('id', 'id Is Required').not().isEmpty()
 ], auth, async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({msgs: errors.array(), error: true});
         }
-        const {name, price, _id} = req.body;
-        let ingredient = await Ingredient.findOne({_id: _id});
+        const {name, price, id, categories} = req.body;
+        let ingredient = await Ingredient.findById(id);
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Found Try Again Later'}], error: true});
         }
-        ingredient = await Ingredient.findOneAndUpdate({_id: _id}, {$set: {name, price}}, {new: true});
+        ingredient = await Ingredient.findOneAndUpdate({_id: id}, {$set: {name, price, categories}}, {new: true});
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Updated I2'}], error: true});
         }
         let recipes = await Recipe.find({user: req.user.id});
-        if (!recipes[0]) {
-            return res.status(400).json({msgs: [{msg: 'Error While Updating Ingredient'}], error: true});
-        }
-        const _user = await User.findById(ingredient.user);
-        if (!_user) {
-            return res.status(400).json({msgs: [{msg: 'User Not Found'}], error: true});
-        }
-        for (let i = 0; i < recipes.length; i++) {
-            let rec = await Recipe.findById(recipes[i].id);
-            for (let j = 0; j < rec.ingredients.length; j++) {
-                if (rec.ingredients[j].id === ingredient.id) {
-                    rec.ingredients[j].name = ingredient.name;
-                    rec.ingredients[j].price = ingredient.price;   
+        if (recipes[0]) {
+            for (let i = 0; i < recipes.length; i++) {
+                let rec = await Recipe.findById(recipes[i].id);
+                for (let j = 0; j < rec.ingredients.length; j++) {
+                    if (rec.ingredients[j].id === ingredient.id) {
+                        rec.ingredients[j].name = ingredient.name;
+                        rec.ingredients[j].price = ingredient.price;   
+                    }
                 }
-            }
-            let price = await updateRecipePrice(rec.ingredients, _user.preferences.money);
-            rec.price = price;
-            await rec.save();
+                rec.price = await updateRecipePrice(rec.ingredients, req.user.preferences.money);
+                await rec.save();
+            };
         }
-        res.json({msgs: [{msg: 'Ingredient Updated Successfully'}], error: false});
+        const ingredients = await Ingredient.find({user: req.user.id});
+        res.json({msgs: [{msg: 'Ingredient Updated Successfully'}], error: false, data: ingredients});
     }
     catch(err) {
         console.error(err);
@@ -119,25 +122,22 @@ router.delete('/', auth, async (req, res) => {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Found'}], error: true});
         }
         await Ingredient.findByIdAndRemove(_id);
-        ingredient = await Ingredient.findById(_id);
-        if (!ingredient) {
-            const recipes = await Recipe.find({user: req.user.id});
-            if (!recipes[0]) {
-                return res.status(400).json({msg: 'No Recipes Found For User', error: true});
-            }
-            for (let i = 0; i < recipes.length; i++) {
-                let recipe = await Recipe.findById(recipes[0].id);
-                for (let j = 0; j < recipe.ingredients.length; j++) {
-                    if (recipe.ingredients[j].id === _id) {
-                        recipe.ingredients.push({name: recipe.ingredients[j].name, user: req.user.id});
-                        recipe.ingredients.splice(j, 1);
-                    }
-                }
-                await recipe.save();
-            }
-            return res.json({msgs: [{msg: 'Ingredient Deleted Successfully'}], error: false})
+        const recipes = await Recipe.find({user: req.user.id});
+        if (!recipes[0]) {
+            return res.status(400).json({msg: 'No Recipes Found For User', error: true});
         }
-        res.status(400).json({msgs: [{msg: 'There Was A Problem Deleting This Ingredient'}], error: true});
+        for (let i = 0; i < recipes.length; i++) {
+            let recipe = await Recipe.findById(recipes[0].id);
+            for (let j = 0; j < recipe.ingredients.length; j++) {
+                if (recipe.ingredients[j].id === _id) {
+                    recipe.ingredients.push({name: recipe.ingredients[j].name, user: req.user.id});
+                    recipe.ingredients.splice(j, 1);
+                }
+            }
+            await recipe.save();
+        }
+        const ingredients = await Ingredient.find({user: req.user.id});
+        res.status(400).json({msgs: [{msg: 'There Was A Problem Deleting This Ingredient'}], error: true, data: ingredients});
     }
     catch(err) {
         console.error(err);

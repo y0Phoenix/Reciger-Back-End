@@ -23,6 +23,14 @@ const IngredientSchema = new mon.Schema({
         volume: {
             type: [String]
         }
+    },
+    calories: {
+        type: Number,
+        default: 0
+    },
+    categories: {
+        type: [String],
+        default: []
     }
 });
 

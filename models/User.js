@@ -15,6 +15,16 @@ const UserSchema = new mon.Schema({
             default: '$'
         }
     },
+    categories: {
+        ingredient: {
+            type: [String],
+            default: []
+        },
+        recipe: {
+            type: [String],
+            default: []
+        }
+    },
     avatar: {
         type: String
     },
@@ -30,9 +40,6 @@ const UserSchema = new mon.Schema({
         type: String,
         unique: true,
         required: true
-    },
-    categories: {
-        type: [String],
     }
 });
 

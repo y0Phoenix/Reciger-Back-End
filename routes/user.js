@@ -10,6 +10,7 @@ const auth = require('../middleware/auth');
 const User = require('../models/User');
 const Recipe = require('../models/Recipe');
 const Ingredient = require('../models/Ingredient');
+const Category = require('../models/Category');
 
 // @post new user
 router.post('/', [
@@ -22,7 +23,7 @@ router.post('/', [
         return res.status(400).json({ msgs: errors.array(), error: true });
     }
 
-    const {name, email, password, preferences = null} = req.body;
+    const {name, email, password, preferences = null, categories} = req.body;
 
     try {
         let user = await User.findOne({email});
@@ -41,7 +42,8 @@ router.post('/', [
                     email, 
                     password, 
                     preferences,
-                    avatar
+                    avatar,
+                    categories
             });
 
             const salt = await bc.genSalt(10);
@@ -120,10 +122,6 @@ router.delete('/', auth, async (req, res) => {
             for (let i = 0; i < recipes.length; i++) {
                 const ID = recipes[i].id
                 await Recipe.findByIdAndDelete(ID);
-                const recipe = await Recipe.findById(ID);
-                if (recipe) {
-                    return res.status(400).json({msgs: [{msg: 'There Was A Problem While Deleting Your User Try Again Later'}], error: true});
-                }
             }
         }
         let ingredients = await Ingredient.find({user: id});
@@ -131,17 +129,9 @@ router.delete('/', auth, async (req, res) => {
             for (let i = 0; i < ingredients.length; i++) {
                 const ID = ingredients[i].id
                 await Ingredient.findByIdAndDelete(ID);
-                const ingredient = await Ingredient.findById(ID);
-                if (ingredient) {
-                    return res.status(400).json({msgs: [{msg: 'There Was A Problem While Deleting Your User Try Again Later'}], error: true});
-                }
             }
         }
-        await User.findByIdAndDelete(id);
-        user = await User.findById(id);
-        if (user) {
-            return res.status(400).json({msgs: [{msg: 'Error While Deleting User Try Again Later'}], error: true});
-        }
+        user.remove();
         res.json({msgs: [{msg: 'User Deleted Successfully Now Redirecting To The Home Page'}], error: false})
     }
     catch(err) {

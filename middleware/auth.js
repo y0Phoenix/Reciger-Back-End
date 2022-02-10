@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const User = require('../models/User');
 
-module.exports = function(req, res, next) {
+module.exports = async function(req, res, next) {
     // Get token from header
     const token = req.header('x-auth-token');
 
@@ -14,8 +15,11 @@ module.exports = function(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, config.get('jwtSecret'));
-
-        req.user = decoded.user;
+        const user = await User.findById(decoded.user.id);
+        if (!user) {
+            return res.status(500).json({msg: 'User Not Fount At Auth Middleware', error: true});
+        }
+        req.user = user;
         next();
     }
     catch(err) {

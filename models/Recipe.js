@@ -10,7 +10,7 @@ const RecipeSchema = new mon.Schema({
         required: true
     },
     ingredients: [{
-        _id: {
+        id: {
             type: mon.Schema.Types.ObjectId,
             default: null
         },
@@ -34,13 +34,23 @@ const RecipeSchema = new mon.Schema({
         user: {
             type: mon.Schema.Types.ObjectId,
             required: true
+        },
+        categories: {
+            type: [String],
+            default: []
         }
     }],
     price: {
-        type: String
+        type: String,
+        default: '$0.00'
     },
-    category: {
-        type: String
+    categories: {
+        type: [String],
+        default: []
+    },
+    calories: {
+        type: Number,
+        default: 0
     }
 });
 
