@@ -1,5 +1,4 @@
 const { default: axios, Axios } = require("axios");
-const request = require('request');
 const config = require('config');
 
 class NutritionAPI {
