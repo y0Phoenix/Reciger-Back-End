@@ -25,12 +25,34 @@ const IngredientSchema = new mon.Schema({
         }
     },
     calories: {
-        type: Number,
-        default: 0
+        g: {
+            type: Number,
+            default: 0
+        },
+        oz: {
+            type: Number,
+            default: 0
+        },
+        ml: {
+            type: Number,
+            default: 0
+        },
+        floz: {
+            type: Number,
+            default: 0
+        },
+        pref: {
+            type: Number,
+            default: 0
+        },
     },
     categories: {
         type: [String],
         default: []
+    },
+    img: {
+        type: String,
+        default: ''
     }
 });
 

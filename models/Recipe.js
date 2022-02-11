@@ -38,6 +38,28 @@ const RecipeSchema = new mon.Schema({
         categories: {
             type: [String],
             default: []
+        },
+        calories: {
+            g: {
+                type: Number,
+                default: 0
+            },
+            oz: {
+                type: Number,
+                default: 0
+            },
+            ml: {
+                type: Number,
+                default: 0
+            },
+            floz: {
+                type: Number,
+                default: 0
+            },
+            pref: {
+                type: Number,
+                default: 0
+            },
         }
     }],
     price: {
@@ -51,6 +73,16 @@ const RecipeSchema = new mon.Schema({
     calories: {
         type: Number,
         default: 0
+    },
+    yield: {
+        number: {
+            type: Number,
+            default: 0
+        },
+        string: {
+            type: String,
+            default: ''
+        }
     }
 });
 

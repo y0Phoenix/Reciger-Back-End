@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const auth = require('../middleware/auth');
 const updateRecipePrice = require('../functions/updateRecipePrice');
+const updateRecipeCal = require('../functions/updateRecipeCal');
 
 const Recipe = require('../models/Recipe');
 
@@ -20,16 +21,17 @@ router.post('/', auth, [
         return res.status(400).json({ msgs: errors.array(), error: true });
     }
     try {
-        let {name, ingredients, price = 0, categories} = req.body;
+        let {name, ingredients, categories, yield} = req.body;
 
-        price = await updateRecipePrice(ingredients, req.user.preferences.money);
+        var price = await updateRecipePrice(ingredients, req.user.preferences.money);
+        var calories = updateRecipeCal(ingredients);
 
         const user = req.user.id;
 
         let recipe = await Recipe.findOne({name: name, user: user});
 
         if (recipe) {
-            recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price, categories}}, {new: true});
+            recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price, categories, yield}}, {new: true});
             const recipes = await Recipe.find({ user: user });
             return res.json({msgs: [{msg: `Recipe ${recipe.name} Updated Successfully`}], data: recipes, error: false});
         }
@@ -39,7 +41,9 @@ router.post('/', auth, [
             ingredients,
             price,
             user,
-            categories
+            categories,
+            yield,
+            calories
         });
         await recipe.save();
         const recipes = await Recipe.find({user: req.user.id});

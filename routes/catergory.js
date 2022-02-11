@@ -6,7 +6,6 @@ const bc = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
-const Category = require('../models/Category');
 const auth = require('../middleware/auth');
 const Recipe = require('../models/Recipe');
 const Ingredient = require('../models/Ingredient');
@@ -27,13 +26,13 @@ router.post('/', [
         user.categories[type].forEach((cat, i, arr) => {
             if (cat === name) {
                 bool = false;
-                return res.status(500).json({msgs: [{msg: 'Category Already Exists'}], error: true});
+                res.status(500).json({msgs: [{msg: 'Category Already Exists'}], error: true});
             }
         });
         if (bool) {
             user.categories[type].push(name);
             await user.save();
-            res.json({msgs: [{msg: 'Category Created Successfully'}], error: false, categories: user.categories});
+            res.json({msgs: [{msg: `Category ${name} Created Successfully`}], error: false, categories: user.categories});
         }
     }
     catch(err) {
@@ -67,8 +66,12 @@ router.delete('/', [
     try {
         let category;
         user.categories[type].forEach((cat, i, arr) => {
-            category = cat === name ? cat : category; 
+            if (cat === name) {
+                category = cat;
+                arr.splice(i, 1);
+            }
         });
+        await user.save();
         if (!category) {
             return res.status(500).json({msgs: [{msg: 'Category Not Found'}], error: true});
         }
@@ -107,7 +110,7 @@ router.delete('/', [
                 await ingredient.save();
             }
         }
-        res.json({msgs: [{msg: 'Category Deleted Successfully'}], error: false});
+        res.json({msgs: [{msg: `Category ${name} Deleted Successfully`}], error: false});
     }
     catch(err) {
         console.error(err);

@@ -10,7 +10,6 @@ const auth = require('../middleware/auth');
 const User = require('../models/User');
 const Recipe = require('../models/Recipe');
 const Ingredient = require('../models/Ingredient');
-const Category = require('../models/Category');
 
 // @post new user
 router.post('/', [

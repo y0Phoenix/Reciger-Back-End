@@ -9,8 +9,9 @@ const auth = require('../middleware/auth');
 
 const Ingredient = require('../models/Ingredient');
 const Recipe = require('../models/Recipe');
-const User = require('../models/User');
 const updateRecipePrice = require('../functions/updateRecipePrice');
+const nutAPI = require('../api/nutAPI');
+const calcCal = require('../functions/calcCal');
 
 // @POST create ingredient
 router.post('/', auth, [
@@ -29,10 +30,24 @@ router.post('/', auth, [
             categories,
         } = req.body;
         const user = req.user.id;
-
         let ingredient = await Ingredient.find({name: name}, {user: user});
         if (ingredient[0]) {
             return res.status(400).json({ msgs: [{ msg: 'Ingredient Already Exists' }], error: true });
+        }
+
+        let Res;
+        let data;
+        let calories
+        if (name.toLowerCase() !== 'water') {
+            Res = await nutAPI.foodSearch(name);
+    
+            if (Res.status !== 200) {
+                return res.status(Res.status).json({msg: Res.statusText});
+            }
+            data = Res.data;
+            calories = data.labelNutrients ? 
+            calcCal(data.servingSizeUnit, data.labelNutrients.calories.value, data.servingSize, units.prefered) : 
+            null;
         }
 
         ingredient = new Ingredient({
@@ -40,7 +55,8 @@ router.post('/', auth, [
             price,
             user,
             units,
-            categories
+            categories,
+            calories
         });
 
         await ingredient.save();
@@ -77,18 +93,19 @@ router.post('/update', [
         if (recipes[0]) {
             for (let i = 0; i < recipes.length; i++) {
                 let rec = await Recipe.findById(recipes[i].id);
-                for (let j = 0; j < rec.ingredients.length; j++) {
-                    if (rec.ingredients[j].id === ingredient.id) {
-                        rec.ingredients[j].name = ingredient.name;
-                        rec.ingredients[j].price = ingredient.price;   
+                rec.ingredients.forEach((ing, i, arr) => {
+                    if (ing.name === ingredient.name) {
+                        ing.name = ingredient.name;
+                        ing.price = ingredient.price;
+                        ing.categories = ingredient.categories;
                     }
-                }
+                })
                 rec.price = await updateRecipePrice(rec.ingredients, req.user.preferences.money);
                 await rec.save();
             };
         }
         const ingredients = await Ingredient.find({user: req.user.id});
-        res.json({msgs: [{msg: 'Ingredient Updated Successfully'}], error: false, data: ingredients});
+        res.json({msgs: [{msg: `Ingredient ${name} Updated Successfully`}], error: false, data: ingredients});
     }
     catch(err) {
         console.error(err);
