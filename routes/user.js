@@ -67,7 +67,8 @@ router.post('/', [
                     volume: ['ml', 'floz'],
                     prefered: preferences.measurements[0]
                 },
-                categories: []
+                categories: [],
+                user: user.id
             });
 
             await ingredient.save();
@@ -125,7 +126,7 @@ router.post('/update', auth, async (req, res) => {
 
 // @DELETE delete user
 router.delete('/', auth, async (req, res) => {
-    const {id} = req.user;
+    const id = req.user;
     try {
         let user = await User.findById(id);
         if (!user) {

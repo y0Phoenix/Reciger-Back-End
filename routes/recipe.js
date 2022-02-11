@@ -71,14 +71,12 @@ router.get('/', auth, async (req, res) => {
 });
 
 // @DELETE delete a recipe
-router.delete('/', [
-    check('id', 'id Is Required To Delete A Recipe').not().isEmpty()
-], auth, async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(500).json({msgs: errors.array(), error: true});
     }
-    const {id} = req.body;
+    const id = req.params.id;
     try {
         let recipe = await Recipe.findById(id);
         if (!recipe) {

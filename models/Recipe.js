@@ -60,8 +60,300 @@ const RecipeSchema = new mon.Schema({
                 type: Number,
                 default: 0
             },
+        },
+        nutrients: {
+            protein: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                g: {
+                    type: Number,
+                    default: 0
+                },
+                oz: {
+                    type: Number,
+                    default: 0
+                },
+                ml: {
+                    type: Number,
+                    default: 0
+                },
+                floz: {
+                    type: Number,
+                    default: 0
+                },
+                pref: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            fat: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                g: {
+                    type: Number,
+                    default: 0
+                },
+                oz: {
+                    type: Number,
+                    default: 0
+                },
+                ml: {
+                    type: Number,
+                    default: 0
+                },
+                floz: {
+                    type: Number,
+                    default: 0
+                },
+                pref: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            carbs: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                g: {
+                    type: Number,
+                    default: 0
+                },
+                oz: {
+                    type: Number,
+                    default: 0
+                },
+                ml: {
+                    type: Number,
+                    default: 0
+                },
+                floz: {
+                    type: Number,
+                    default: 0
+                },
+                pref: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            sugars: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                g: {
+                    type: Number,
+                    default: 0
+                },
+                oz: {
+                    type: Number,
+                    default: 0
+                },
+                ml: {
+                    type: Number,
+                    default: 0
+                },
+                floz: {
+                    type: Number,
+                    default: 0
+                },
+                pref: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            fiber: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                g: {
+                    type: Number,
+                    default: 0
+                },
+                oz: {
+                    type: Number,
+                    default: 0
+                },
+                ml: {
+                    type: Number,
+                    default: 0
+                },
+                floz: {
+                    type: Number,
+                    default: 0
+                },
+                pref: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            calcium: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                g: {
+                    type: Number,
+                    default: 0
+                },
+                oz: {
+                    type: Number,
+                    default: 0
+                },
+                ml: {
+                    type: Number,
+                    default: 0
+                },
+                floz: {
+                    type: Number,
+                    default: 0
+                },
+                pref: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            iron: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                g: {
+                    type: Number,
+                    default: 0
+                },
+                oz: {
+                    type: Number,
+                    default: 0
+                },
+                ml: {
+                    type: Number,
+                    default: 0
+                },
+                floz: {
+                    type: Number,
+                    default: 0
+                },
+                pref: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            sodium: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                g: {
+                    type: Number,
+                    default: 0
+                },
+                oz: {
+                    type: Number,
+                    default: 0
+                },
+                ml: {
+                    type: Number,
+                    default: 0
+                },
+                floz: {
+                    type: Number,
+                    default: 0
+                },
+                pref: {
+                    type: Number,
+                    default: 0
+                }
+            },
         }
     }],
+    nutrients: {
+        protein: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
+            amount: {
+                type: Number,
+                default: 0
+            }
+        },
+        fat: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
+            amount: {
+                type: Number,
+                default: 0
+            }
+        },
+        carbs: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
+            amount: {
+                type: Number,
+                default: 0
+            }
+        },
+        sugars: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
+            amount: {
+                type: Number,
+                default: 0
+            }
+        },
+        fiber: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
+            amount: {
+                type: Number,
+                default: 0
+            }
+        },
+        calcium: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
+            amount: {
+                type: Number,
+                default: 0
+            }
+        },
+        iron: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
+            amount: {
+                type: Number,
+                default: 0
+            }
+        },
+        sodium: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
+            amount: {
+                type: Number,
+                default: 0
+            }
+        },
+    },
     price: {
         type: String,
         default: '$0.00'

@@ -57,10 +57,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // @DELETE delete a category
-router.delete('/', [
-    check('name', 'The Name Of The Category Is Required').not().isEmpty(),
-    check('type', 'The Type Of Category Is Required').not().isEmpty()
-], auth, async (req, res) => {
+router.delete('/', auth, async (req, res) => {
     const {name, type} = req.body;
     const user = req.user;
     try {

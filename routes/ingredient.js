@@ -41,7 +41,7 @@ router.post('/', auth, [
         }
         data = Res.data;
         const {calories, nutrients} = data.labelNutrients ? 
-        calcNutrients(data.foods[0].servingSizeUnit, data.foods[0].foodNutrients, data.foods[0].servingSize, units.prefered) : 
+        await calcNutrients(data.servingSizeUnit, data, data.servingSize, units.prefered) : 
         {calories: null, nutrients: null};
 
         ingredient = new Ingredient({
@@ -68,19 +68,19 @@ router.post('/', auth, [
 // @POST update ingredient
 router.post('/update', [
     check('price', 'Please Specify A New Price Or Name To Update').not().isEmpty(),
-    check('id', 'id Is Required').not().isEmpty()
+    check('_id', 'id Is Required').not().isEmpty()
 ], auth, async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({msgs: errors.array(), error: true});
         }
-        const {name, price, id, categories} = req.body;
-        let ingredient = await Ingredient.findById(id);
+        const {name, price, _id, categories} = req.body;
+        let ingredient = await Ingredient.findById(_id);
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Found Try Again Later'}], error: true});
         }
-        ingredient = await Ingredient.findOneAndUpdate({_id: id}, {$set: {name, price, categories}}, {new: true});
+        ingredient = await Ingredient.findOneAndUpdate({_id: _id}, {$set: {name, price, categories}}, {new: true});
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Updated I2'}], error: true});
         }
@@ -129,30 +129,30 @@ router.get('/', auth, async (req, res) => {
 });
 
 // @DELETE delete an ingredient
-router.delete('/', auth, async (req, res) => {
-    const {_id} = req.body;
+router.delete('/:id', auth, async (req, res) => {
+    const id = req.params.id;
     try {
-        let ingredient = await Ingredient.findById(_id);
+        let ingredient = await Ingredient.findById(id);
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Found'}], error: true});
         }
-        await Ingredient.findByIdAndRemove(_id);
+        await Ingredient.findByIdAndRemove(id);
         const recipes = await Recipe.find({user: req.user.id});
-        if (!recipes[0]) {
-            return res.status(400).json({msg: 'No Recipes Found For User', error: true});
-        }
-        for (let i = 0; i < recipes.length; i++) {
-            let recipe = await Recipe.findById(recipes[0].id);
-            for (let j = 0; j < recipe.ingredients.length; j++) {
-                if (recipe.ingredients[j].id === _id) {
-                    recipe.ingredients.push({name: recipe.ingredients[j].name, user: req.user.id});
-                    recipe.ingredients.splice(j, 1);
+        if (recipes) {
+            for (let i = 0; i < recipes.length; i++) {
+                let recipe = await Recipe.findById(recipes[0].id);
+                for (let j = 0; j < recipe.ingredients.length; j++) {
+                    if (recipe.ingredients[j].id === id) {
+                        recipe.ingredients.push({name: recipe.ingredients[j].name, user: req.user.id,
+                            calories: recipe.ingredients[j].calories, nutrients: recipe.ingredients[j].nutrients});
+                        recipe.ingredients.splice(j, 1);
+                    }
                 }
+                await recipe.save();
             }
-            await recipe.save();
         }
         const ingredients = await Ingredient.find({user: req.user.id});
-        res.status(400).json({msgs: [{msg: 'There Was A Problem Deleting This Ingredient'}], error: true, data: ingredients});
+        res.json({msgs: [{msg: `Ingredient ${ingredient.name} Deleted Successfully`}], error: false, data: ingredients});
     }
     catch(err) {
         console.error(err);

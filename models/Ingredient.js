@@ -48,6 +48,10 @@ const IngredientSchema = new mon.Schema({
     },
     nutrients: {
         protein: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
             g: {
                 type: Number,
                 default: 0
@@ -70,6 +74,10 @@ const IngredientSchema = new mon.Schema({
             }
         },
         fat: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
             g: {
                 type: Number,
                 default: 0
@@ -92,6 +100,10 @@ const IngredientSchema = new mon.Schema({
             }
         },
         carbs: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
             g: {
                 type: Number,
                 default: 0
@@ -114,6 +126,10 @@ const IngredientSchema = new mon.Schema({
             }
         },
         sugars: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
             g: {
                 type: Number,
                 default: 0
@@ -136,6 +152,10 @@ const IngredientSchema = new mon.Schema({
             }
         },
         fiber: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
             g: {
                 type: Number,
                 default: 0
@@ -158,6 +178,10 @@ const IngredientSchema = new mon.Schema({
             }
         },
         calcium: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
             g: {
                 type: Number,
                 default: 0
@@ -180,6 +204,10 @@ const IngredientSchema = new mon.Schema({
             }
         },
         iron: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
             g: {
                 type: Number,
                 default: 0
@@ -202,6 +230,10 @@ const IngredientSchema = new mon.Schema({
             }
         },
         sodium: {
+            unit: {
+                type: String,
+                default: 'mg'
+            },
             g: {
                 type: Number,
                 default: 0
