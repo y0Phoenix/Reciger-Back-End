@@ -1,13 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
-const gravatar = require('gravatar');
-const bc = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const config = require('config');
 const auth = require('../middleware/auth');
 const updateRecipePrice = require('../functions/updateRecipePrice');
-const updateRecipeCal = require('../functions/updateRecipeCal');
+const updateRecipeNutrients = require('../functions/updateRecipeNutrients');
 
 const Recipe = require('../models/Recipe');
 
@@ -24,14 +20,14 @@ router.post('/', auth, [
         let {name, ingredients, categories, yield} = req.body;
 
         var price = await updateRecipePrice(ingredients, req.user.preferences.money);
-        var calories = updateRecipeCal(ingredients);
+        const {calories, nutrients} = await updateRecipeNutrients(ingredients);
 
         const user = req.user.id;
 
         let recipe = await Recipe.findOne({name: name, user: user});
 
         if (recipe) {
-            recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price, categories, yield, calories}}, {new: true});
+            recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price, categories, yield, calories, nutrients}}, {new: true});
             const recipes = await Recipe.find({ user: user });
             return res.json({msgs: [{msg: `Recipe ${recipe.name} Updated Successfully`}], data: recipes, error: false});
         }
@@ -43,7 +39,8 @@ router.post('/', auth, [
             user,
             categories,
             yield,
-            calories
+            calories,
+            nutrients
         });
         await recipe.save();
         const recipes = await Recipe.find({user: req.user.id});

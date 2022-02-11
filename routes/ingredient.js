@@ -1,18 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
-const gravatar = require('gravatar');
-const bc = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const config = require('config');
 const auth = require('../middleware/auth');
 
 const Ingredient = require('../models/Ingredient');
 const Recipe = require('../models/Recipe');
 const updateRecipePrice = require('../functions/updateRecipePrice');
 const nutAPI = require('../api/nutAPI');
-const calcCal = require('../functions/calcCal');
-const updateRecipeCal = require('../functions/updateRecipeCal');
+const calcNutrients = require('../functions/calcNutrients');
+const updateRecipeNutrients = require('../functions/updateRecipeNutrients');
 
 // @POST create ingredient
 router.post('/', auth, [
@@ -38,18 +34,15 @@ router.post('/', auth, [
 
         let Res;
         let data;
-        let calories
-        if (name.toLowerCase() !== 'water') {
-            Res = await nutAPI.foodSearch(name);
-    
-            if (Res.status !== 200) {
-                return res.status(Res.status).json({msg: Res.statusText});
-            }
-            data = Res.data;
-            calories = data.labelNutrients ? 
-            calcCal(data.servingSizeUnit, data.labelNutrients.calories.value, data.servingSize, units.prefered) : 
-            null;
+        Res = await nutAPI.foodSearch(name);
+
+        if (Res.status !== 200) {
+            return res.status(Res.status).json({msg: Res.statusText});
         }
+        data = Res.data;
+        const {calories, nutrients} = data.labelNutrients ? 
+        calcNutrients(data.foods[0].servingSizeUnit, data.foods[0].foodNutrients, data.foods[0].servingSize, units.prefered) : 
+        {calories: null, nutrients: null};
 
         ingredient = new Ingredient({
             name,
@@ -57,7 +50,8 @@ router.post('/', auth, [
             user,
             units,
             categories,
-            calories
+            calories,
+            nutrients
         });
 
         await ingredient.save();
@@ -102,7 +96,9 @@ router.post('/update', [
                     }
                 })
                 rec.price = await updateRecipePrice(rec.ingredients, req.user.preferences.money);
-                rec.calories = await updateRecipeCal(rec.ingredients);
+                const {calories, nutrients} = await updateRecipeNutrients(rec.ingredients);
+                rec.calories = calories;
+                rec.nutrients = nutrients;
                 await rec.save();
             };
         }

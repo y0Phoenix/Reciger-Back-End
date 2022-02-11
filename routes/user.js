@@ -22,7 +22,9 @@ router.post('/', [
         return res.status(400).json({ msgs: errors.array(), error: true });
     }
 
-    const {name, email, password, preferences = null, categories} = req.body;
+    const {name, email, password, preferences = {
+        measurements: ['g', 'ml']
+    }, categories} = req.body;
 
     try {
         let user = await User.findOne({email});
@@ -56,6 +58,19 @@ router.post('/', [
                     id: user.id
                 }
             };
+
+            const ingredient = new Ingredient({
+                name: 'water',
+                price: '$0.00',
+                units: {
+                    weight: ['g', 'oz'],
+                    volume: ['ml', 'floz'],
+                    prefered: preferences.measurements[0]
+                },
+                categories: []
+            });
+
+            await ingredient.save();
 
             jwt.sign(payload, config.get('jwtSecret'), {expiresIn: 3600000},
             (err, token) => {

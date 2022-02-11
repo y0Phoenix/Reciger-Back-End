@@ -15,4 +15,5 @@ async function updateRecipePrice(ingredients, pref) {
     price = `${pref}${price.toFixed(2)}`;
     return price;
 }
+
 module.exports = updateRecipePrice;
