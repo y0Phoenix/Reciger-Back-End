@@ -12,6 +12,7 @@ const Recipe = require('../models/Recipe');
 const updateRecipePrice = require('../functions/updateRecipePrice');
 const nutAPI = require('../api/nutAPI');
 const calcCal = require('../functions/calcCal');
+const updateRecipeCal = require('../functions/updateRecipeCal');
 
 // @POST create ingredient
 router.post('/', auth, [
@@ -101,6 +102,7 @@ router.post('/update', [
                     }
                 })
                 rec.price = await updateRecipePrice(rec.ingredients, req.user.preferences.money);
+                rec.calories = await updateRecipeCal(rec.ingredients);
                 await rec.save();
             };
         }

@@ -31,7 +31,7 @@ router.post('/', auth, [
         let recipe = await Recipe.findOne({name: name, user: user});
 
         if (recipe) {
-            recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price, categories, yield}}, {new: true});
+            recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price, categories, yield, calories}}, {new: true});
             const recipes = await Recipe.find({ user: user });
             return res.json({msgs: [{msg: `Recipe ${recipe.name} Updated Successfully`}], data: recipes, error: false});
         }
