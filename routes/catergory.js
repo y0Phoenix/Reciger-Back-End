@@ -1,10 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
-const gravatar = require('gravatar');
-const bc = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const config = require('config');
 
 const auth = require('../middleware/auth');
 const Recipe = require('../models/Recipe');

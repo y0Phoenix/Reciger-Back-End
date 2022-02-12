@@ -38,7 +38,7 @@ router.post('/', auth, [
         Res = await nutAPI.foodSearch(name);
         
         if (Res.status !== 200) {
-            return res.status(Res.status).json({msg: Res.statusText});
+            return res.status(Res.status).json({msgs: [{msg: 'Error While Creating Ingredient Try Again Later'}], msg: Res.statusText, error: true});
         }
         data = Res.data;
         const length = Object.keys(data.labelNutrients).length;
