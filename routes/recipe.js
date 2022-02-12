@@ -6,6 +6,9 @@ const updateRecipePrice = require('../functions/updateRecipePrice');
 const updateRecipeNutrients = require('../functions/updateRecipeNutrients');
 
 const Recipe = require('../models/Recipe');
+const updateIngredientIng = require('../functions/updateIngredientIng');
+const updatUserCategories = require('../functions/updateUserCategories');
+const updateRIT = require('../functions/updateRIT');
 
 // @POST create recipe
 router.post('/', auth, [
@@ -17,9 +20,11 @@ router.post('/', auth, [
         return res.status(400).json({ msgs: errors.array(), error: true });
     }
     try {
-        let {name, ingredients, categories, yield} = req.body;
+        let {name = '', ingredients = [], categories = [], yield = {}, instructions = ''} = req.body;
 
         var price = await updateRecipePrice(ingredients, req.user.preferences.money);
+        ingredients = await updateIngredientIng(ingredients);
+        ingredients = await updateRIT(ingredients);
         const {calories, nutrients} = await updateRecipeNutrients(ingredients);
 
         const user = req.user.id;
@@ -40,10 +45,12 @@ router.post('/', auth, [
             categories,
             yield,
             calories,
-            nutrients
+            nutrients,
+            instructions
         });
+        await updatUserCategories(categories, req.user, 'recipe');
         await recipe.save();
-        const recipes = await Recipe.find({user: req.user.id});
+        const recipes = await Recipe.find({user: req.user.id}).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
 
         res.json({ msgs: [{msg: `Recipe ${name} Create Successfully`}], error: false, data: recipes });
         
@@ -57,7 +64,7 @@ router.post('/', auth, [
 router.get('/', auth, async (req, res) => {
     try {
         const id = req.user.id;
-        const recipes = await Recipe.find({user: id});
+        const recipes = await Recipe.find({user: id}).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
     
         if (!recipes[0]) {
             return res.status(400).json({msgs: [{msg: 'No Recipes Found For You'}], error: true});
@@ -83,17 +90,29 @@ router.delete('/:id', auth, async (req, res) => {
             return res.status(400).json({msgs: [{msg: 'Recipe Not Found Try Again Later'}], error: true});
         }
         await Recipe.findByIdAndDelete(id);
-        recipe = await Recipe.findById(id);
-        if (recipe) {
-            return res.status(400).json({msgs: [{msg: 'Something Went Wrong While Trying To Delete This Recipe Try Again Later'}], error: true});
-        }
-        const recipes = await Recipe.find({user: req.user.id});
-        res.json({msgs: [{msg: 'Recipe Deleted Successfully'}], error: false, data: recipes});
+        const recipes = await Recipe.find({user: req.user.id}).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
+        res.json({msgs: [{msg: `Recipe ${recipe.name} Deleted Successfully`}], error: false, data: recipes});
     }
     catch(err) {
         console.error(err);
         res.status(500).json({msg: 'Server Error R4', error: true});
     }
-})
+});
+
+// @GET one recipe by id
+router.get('/:id', auth, async (req, res) => {
+    const id = req.params.id;
+    try {
+        const recipe = await Recipe.findById(id);
+        if (!recipe) {
+            return res.status(404).json({msgs: [{msg: 'recipe Not Found Try Again Later'}], error: true});
+        }
+        return res.json({msgs: [{msg: `${recipe.name} Found`}], error: false, data: recipe});
+    }
+    catch(err) {
+        console.error(err);
+        res.status(500).json({msgs: [{msg: 'Server Error R5'}], error: true});
+    }
+});
 
 module.exports = router;

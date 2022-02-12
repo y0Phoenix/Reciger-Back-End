@@ -9,11 +9,11 @@ const RecipeSchema = new mon.Schema({
         type: String,
         required: true
     },
+    img: {
+        type: String,
+        default: ''
+    },
     ingredients: [{
-        id: {
-            type: mon.Schema.Types.ObjectId,
-            default: null
-        },
         quantity: {
             unit: {
                 type: String,
@@ -21,6 +21,10 @@ const RecipeSchema = new mon.Schema({
             },
             amount: {
                 type: Number,
+                default: null
+            },
+            type: {
+                type: String,
                 default: null
             }
         },
@@ -34,6 +38,9 @@ const RecipeSchema = new mon.Schema({
         user: {
             type: mon.Schema.Types.ObjectId,
             required: true
+        },
+        ing: {
+            type: mon.Schema.Types.ObjectId
         },
         categories: {
             type: [String],
@@ -375,6 +382,10 @@ const RecipeSchema = new mon.Schema({
             type: String,
             default: ''
         }
+    },
+    instructions: {
+        type: String,
+        default: ''
     }
 });
 

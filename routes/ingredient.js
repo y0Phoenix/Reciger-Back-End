@@ -9,6 +9,7 @@ const updateRecipePrice = require('../functions/updateRecipePrice');
 const nutAPI = require('../api/nutAPI');
 const calcNutrients = require('../functions/calcNutrients');
 const updateRecipeNutrients = require('../functions/updateRecipeNutrients');
+const updateUserCategories = require('../functions/updateUserCategories');
 
 // @POST create ingredient
 router.post('/', auth, [
@@ -31,19 +32,20 @@ router.post('/', auth, [
         if (ingredient[0]) {
             return res.status(400).json({ msgs: [{ msg: 'Ingredient Already Exists' }], error: true });
         }
-
+        
         let Res;
         let data;
         Res = await nutAPI.foodSearch(name);
-
+        
         if (Res.status !== 200) {
             return res.status(Res.status).json({msg: Res.statusText});
         }
         data = Res.data;
-        const {calories, nutrients} = data.labelNutrients ? 
+        const length = Object.keys(data.labelNutrients).length;
+        const {calories, nutrients} = length > 0 ? 
         await calcNutrients(data.servingSizeUnit, data, data.servingSize, units.prefered) : 
         {calories: null, nutrients: null};
-
+        
         ingredient = new Ingredient({
             name,
             price,
@@ -53,9 +55,28 @@ router.post('/', auth, [
             calories,
             nutrients
         });
-
+        await updateUserCategories(categories, req.user, 'ingredient');
         await ingredient.save();
-        const ingredients = await Ingredient.find({user: user});
+
+        let recipes = await Recipe.find({user: user});
+        if (recipes[0]) {
+            for (let i = 0; i < recipes.length; i++) {
+                let recipe = await Recipe.findById(recipes[i].id);
+                if (recipe) {
+                    recipe.ingredients.forEach((ing, i, arr) => {
+                        if (ing.name === ingredient.name) {
+                            arr[i].ing = ingredient.id; 
+                            arr[i].quantity = ingredient.quantity; 
+                            arr[i].categories = ingredient.categories;
+                            console.log('poop');
+                        }
+                    });
+                    await recipe.save();
+                }
+            }
+        }
+
+        const ingredients = await Ingredient.find({user: user}).select({units: 0, calories: 0, nutrients: 0, __v: 0});
 
         res.json({ msgs: [{msg: `Ingredient ${ingredient.name} Created Successfully`}], error: false, data: ingredients});
     }
@@ -84,6 +105,7 @@ router.post('/update', [
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Updated I2'}], error: true});
         }
+        await updateUserCategories(categories, req.user, 'ingredient');
         let recipes = await Recipe.find({user: req.user.id});
         if (recipes[0]) {
             for (let i = 0; i < recipes.length; i++) {
@@ -102,7 +124,7 @@ router.post('/update', [
                 await rec.save();
             };
         }
-        const ingredients = await Ingredient.find({user: req.user.id});
+        const ingredients = await Ingredient.find({user: req.user.id}).select({units: 0, calories: 0, nutrients: 0, __v: 0});;
         res.json({msgs: [{msg: `Ingredient ${name} Updated Successfully`}], error: false, data: ingredients});
     }
     catch(err) {
@@ -115,7 +137,7 @@ router.post('/update', [
 router.get('/', auth, async (req, res) => {
     try {
         const id = req.user.id;
-        const ingredients = await Ingredient.find({user: id});
+        const ingredients = await Ingredient.find({user: id}).select({units: 0, calories: 0, nutrients: 0});
     
         if (!ingredients[0]) {
             return res.status(400).json({msgs: [{msg: 'No Ingredients Found', error: true}]});
@@ -141,23 +163,39 @@ router.delete('/:id', auth, async (req, res) => {
         if (recipes) {
             for (let i = 0; i < recipes.length; i++) {
                 let recipe = await Recipe.findById(recipes[0].id);
-                for (let j = 0; j < recipe.ingredients.length; j++) {
-                    if (recipe.ingredients[j].id === id) {
-                        recipe.ingredients.push({name: recipe.ingredients[j].name, user: req.user.id,
-                            calories: recipe.ingredients[j].calories, nutrients: recipe.ingredients[j].nutrients});
-                        recipe.ingredients.splice(j, 1);
+                recipe.ingredients.forEach((ing, i, arr) => {
+                    if (ing.id === id) {
+                        arr.push({name: ing.name, user: req.user.id,
+                            calories: ing.calories, nutrients: ing.nutrients, quantity: ing.quantity});
+                        arr.splice(i, 1);
                     }
-                }
+                });
                 await recipe.save();
             }
         }
-        const ingredients = await Ingredient.find({user: req.user.id});
+        const ingredients = await Ingredient.find({user: req.user.id}).select({units: 0, calories: 0, nutrients: 0, __v: 0});
         res.json({msgs: [{msg: `Ingredient ${ingredient.name} Deleted Successfully`}], error: false, data: ingredients});
     }
     catch(err) {
         console.error(err);
         res.status(500).json({msg: 'Server Error I5', error: true});
     }
-})
+});
+
+// @GET one ingredient by id
+router.get('/:id', auth, async (req, res) => {
+    const id = req.params.id;
+    try {
+        const ingredient = await Ingredient.findById(id);
+        if (!ingredient) {
+            return res.status(404).json({msgs: [{msg: 'Ingredient Not Found Try Again Later'}], error: true});
+        }
+        return res.json({msgs: [{msg: `${ingredient.name} Found`}], error: false, data: ingredient});
+    }
+    catch(err) {
+        console.error(err);
+        res.status(500).json({msgs: [{msg: 'Server Error I6'}], error: true});
+    }
+});
 
 module.exports = router;

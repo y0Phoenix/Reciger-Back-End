@@ -46,7 +46,7 @@ router.get('/', auth, async (req, res) => {
     const user = req.user;
     try {
         if (!user.categories.ingredient[0] && !user.categories.recipe[0]) {
-            return res.status(500).json({msgs: [{msg: 'No catergories Found For User'}], error: true});
+            return res.status(404).json({msgs: [{msg: 'No catergories Found For User'}], error: true});
         }
         res.json({categories: user.categories, error: false});
     }
@@ -70,7 +70,7 @@ router.delete('/', auth, async (req, res) => {
         });
         await user.save();
         if (!category) {
-            return res.status(500).json({msgs: [{msg: 'Category Not Found'}], error: true});
+            return res.status(404).json({msgs: [{msg: 'Category Not Found'}], error: true});
         }
         let recipes = await Recipe.find({user: user});
         if (recipes[0]) {
