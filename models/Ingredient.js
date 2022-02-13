@@ -50,7 +50,7 @@ const IngredientSchema = new mon.Schema({
         protein: {
             unit: {
                 type: String,
-                default: 'mg'
+                default: 'g'
             },
             g: {
                 type: Number,
@@ -76,7 +76,7 @@ const IngredientSchema = new mon.Schema({
         fat: {
             unit: {
                 type: String,
-                default: 'mg'
+                default: 'g'
             },
             g: {
                 type: Number,
@@ -102,7 +102,7 @@ const IngredientSchema = new mon.Schema({
         carbs: {
             unit: {
                 type: String,
-                default: 'mg'
+                default: 'g'
             },
             g: {
                 type: Number,
@@ -128,7 +128,7 @@ const IngredientSchema = new mon.Schema({
         sugars: {
             unit: {
                 type: String,
-                default: 'mg'
+                default: 'g'
             },
             g: {
                 type: Number,

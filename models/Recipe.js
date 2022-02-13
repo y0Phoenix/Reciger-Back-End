@@ -72,7 +72,7 @@ const RecipeSchema = new mon.Schema({
             protein: {
                 unit: {
                     type: String,
-                    default: 'mg'
+                    default: 'g'
                 },
                 g: {
                     type: Number,
@@ -98,7 +98,7 @@ const RecipeSchema = new mon.Schema({
             fat: {
                 unit: {
                     type: String,
-                    default: 'mg'
+                    default: 'g'
                 },
                 g: {
                     type: Number,
@@ -124,7 +124,7 @@ const RecipeSchema = new mon.Schema({
             carbs: {
                 unit: {
                     type: String,
-                    default: 'mg'
+                    default: 'g'
                 },
                 g: {
                     type: Number,
@@ -150,7 +150,7 @@ const RecipeSchema = new mon.Schema({
             sugars: {
                 unit: {
                     type: String,
-                    default: 'mg'
+                    default: 'g'
                 },
                 g: {
                     type: Number,
@@ -283,7 +283,7 @@ const RecipeSchema = new mon.Schema({
         protein: {
             unit: {
                 type: String,
-                default: 'mg'
+                default: 'g'
             },
             amount: {
                 type: Number,
@@ -293,7 +293,7 @@ const RecipeSchema = new mon.Schema({
         fat: {
             unit: {
                 type: String,
-                default: 'mg'
+                default: 'g'
             },
             amount: {
                 type: Number,
@@ -303,7 +303,7 @@ const RecipeSchema = new mon.Schema({
         carbs: {
             unit: {
                 type: String,
-                default: 'mg'
+                default: 'g'
             },
             amount: {
                 type: Number,
@@ -313,7 +313,7 @@ const RecipeSchema = new mon.Schema({
         sugars: {
             unit: {
                 type: String,
-                default: 'mg'
+                default: 'g'
             },
             amount: {
                 type: Number,
@@ -323,7 +323,7 @@ const RecipeSchema = new mon.Schema({
         fiber: {
             unit: {
                 type: String,
-                default: 'mg'
+                default: 'g'
             },
             amount: {
                 type: Number,

@@ -6,10 +6,10 @@ const auth = require('../middleware/auth');
 const Ingredient = require('../models/Ingredient');
 const Recipe = require('../models/Recipe');
 const updateRecipePrice = require('../functions/updateRecipePrice');
-const nutAPI = require('../api/nutAPI');
 const calcNutrients = require('../functions/calcNutrients');
 const updateRecipeNutrients = require('../functions/updateRecipeNutrients');
 const updateUserCategories = require('../functions/updateUserCategories');
+const NutritionAPI = require('../classes/NutritionAPI');
 
 // @POST create ingredient
 router.post('/', auth, [
@@ -27,24 +27,21 @@ router.post('/', auth, [
             units = {weight: ['oz'], volume: ['floz'], prefered: user.preferences.measurements[0]}, 
             categories,
         } = req.body;
+        const noNut = JSON.parse(req.query.noNut);
         const user = req.user.id;
         let ingredient = await Ingredient.find({name: name}, {user: user});
         if (ingredient[0]) {
             return res.status(400).json({ msgs: [{ msg: 'Ingredient Already Exists' }], error: true });
         }
         
-        let Res;
-        let data;
-        Res = await nutAPI.foodSearch(name);
-        
-        if (Res.status !== 200) {
-            return res.status(Res.status).json({msgs: [{msg: 'Error While Creating Ingredient Try Again Later'}], msg: Res.statusText, error: true});
+        if (!noNut) {
+            const api = new NutritionAPI();
+            var {calories, nutrients, error} = await api.foodSearchAndParse(name, units.prefered);
+            if (error.status !== 200) {
+                return res.status(error.status)
+                .json({msgs: [{msg: error.statusText.includes('No Good Matches Found') ? error.statusText : 'Error While Creating Ingredient Try Again Later'}], error: true});
+            }
         }
-        data = Res.data;
-        const length = Object.keys(data.labelNutrients).length;
-        const {calories, nutrients} = length > 0 ? 
-        await calcNutrients(data.servingSizeUnit, data, data.servingSize, units.prefered) : 
-        {calories: null, nutrients: null};
         
         ingredient = new Ingredient({
             name,
@@ -89,7 +86,7 @@ router.post('/', auth, [
 // @POST update ingredient
 router.post('/update', [
     check('price', 'Please Specify A New Price Or Name To Update').not().isEmpty(),
-    check('_id', 'id Is Required').not().isEmpty()
+    check('_id', '_id Is Required').not().isEmpty()
 ], auth, async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -137,8 +134,14 @@ router.post('/update', [
 router.get('/', auth, async (req, res) => {
     try {
         const id = req.user.id;
-        const ingredients = await Ingredient.find({user: id}).select({units: 0, calories: 0, nutrients: 0});
-    
+        const all = JSON.parse(req.query.all);
+        var ingredients;
+        if (all) {
+            ingredients = await Ingredient.find({user: id});
+        }
+        else {
+            ingredients = await Ingredient.find({user: id}).select({units: 0, calories: 0, nutrients: 0, __v: 0});
+        }
         if (!ingredients[0]) {
             return res.status(400).json({msgs: [{msg: 'No Ingredients Found', error: true}]});
         }
