@@ -4,8 +4,9 @@
   "description": "back end application for Aaron Graybills recipe manager",
   "main": "server.js",
   "scripts": {
-    "start": "node server",
-    "server": "nodemon server"
+    "start": "node server.js",
+    "server": "nodemon server",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install"
   },
   "repository": {
     "type": "git",
@@ -31,5 +32,9 @@
   "devDependencies": {
     "concurrently": "^7.0.0",
     "nodemon": "^2.0.15"
+  },
+  "engines": {
+    "node": "16.13.1",
+    "npm": "8.3.0"
   }
 }

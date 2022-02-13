@@ -6,7 +6,6 @@ const auth = require('../middleware/auth');
 const Ingredient = require('../models/Ingredient');
 const Recipe = require('../models/Recipe');
 const updateRecipePrice = require('../functions/updateRecipePrice');
-const calcNutrients = require('../functions/calcNutrients');
 const updateRecipeNutrients = require('../functions/updateRecipeNutrients');
 const updateUserCategories = require('../functions/updateUserCategories');
 const NutritionAPI = require('../classes/NutritionAPI');
