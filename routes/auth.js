@@ -4,7 +4,6 @@ const { check, validationResult } = require('express-validator');
 const bc = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
-const auth = require('../middleware/auth');
 
 const User = require('../models/User');
 
@@ -23,12 +22,12 @@ router.post('/', [
     try {
         let user = await User.findOne({email});
         if (!user) {
-            return res.status(404).json({errors: [{msg: 'Invalid Credentials', error: true}]});
+            return res.status(404).json({msgs: [{msg: 'Invalid Credentials', error: true}]});
         }
         const bool = bc.compare(password, user.password);
 
         if (!bool) {
-            return res.status(400).json({errors: [{msg: 'Invalid Credentials', error: true}]});
+            return res.status(400).json({msgs: [{msg: 'Invalid Credentials', error: true}]});
         }
         const payload = {
             user: {
@@ -49,10 +48,10 @@ router.post('/', [
 
 router.get('/', auth, async (req, res) => {
     try {
-        return res.json({error: false, data: {isAuthenticated: true}});
+        return res.json({isAuthenticated: true, error: false});
     } catch (err) {
-        return res.status(500).json({msgs: [{msg: 'Server Error U6'}], error: true});
+        return res.status(500).json({isAuthenticated: false, error: true});
     }
-})
+});
 
 module.exports = router;
