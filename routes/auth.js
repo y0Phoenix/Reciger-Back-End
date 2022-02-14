@@ -4,6 +4,7 @@ const { check, validationResult } = require('express-validator');
 const bc = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const auth = require('../middleware/auth');
 
 const User = require('../models/User');
 
@@ -45,5 +46,13 @@ router.post('/', [
         res.status(400).json({msg: 'Server Error U1', error: true});
     }
 });
+
+router.get('/', auth, async (req, res) => {
+    try {
+        return res.json({error: false, data: {isAuthenticated: true}});
+    } catch (err) {
+        return res.status(500).json({msgs: [{msg: 'Server Error U6'}], error: true});
+    }
+})
 
 module.exports = router;
