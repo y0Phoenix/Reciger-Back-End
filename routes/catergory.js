@@ -28,7 +28,7 @@ router.post('/', [
         if (bool) {
             user.categories[type].push(name);
             await user.save();
-            res.json({msgs: [{msg: `Category ${name} Created Successfully`}], error: false, categories: user.categories});
+            res.json({msgs: [{msg: `Category ${name} Created Successfully`}], error: false, data: user.categories});
         }
     }
     catch(err) {
@@ -44,7 +44,7 @@ router.get('/', auth, async (req, res) => {
         if (!user.categories.ingredient[0] && !user.categories.recipe[0]) {
             return res.status(404).json({msgs: [{msg: 'No catergories Found For User'}], error: true});
         }
-        res.json({categories: user.categories, error: false});
+        res.json({data: user.categories, error: false});
     }
     catch(err) {
         console.error(err);
@@ -64,10 +64,10 @@ router.delete('/', auth, async (req, res) => {
                 arr.splice(i, 1);
             }
         });
-        await user.save();
         if (!category) {
             return res.status(404).json({msgs: [{msg: 'Category Not Found'}], error: true});
         }
+        await user.save();
         let recipes = await Recipe.find({user: user});
         if (recipes[0]) {
             for (let i = 0; i < recipes.length; i++) {
@@ -103,7 +103,8 @@ router.delete('/', auth, async (req, res) => {
                 await ingredient.save();
             }
         }
-        res.json({msgs: [{msg: `Category ${name} Deleted Successfully`}], error: false});
+        const categories = user.categories[type];
+        res.json({msgs: [{msg: `Category ${name} Deleted Successfully`}], error: false, data: categories});
     }
     catch(err) {
         console.error(err);

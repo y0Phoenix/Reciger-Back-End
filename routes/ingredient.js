@@ -145,7 +145,7 @@ router.get('/', auth, async (req, res) => {
             return res.status(400).json({msgs: [{msg: 'No Ingredients Found', error: true}]});
         }
     
-        res.json(ingredients);
+        res.json({data: ingredients});
     } catch (err) {
         console.error(err);
         res.status(500).json({msg: 'Server Error I1', error: true});

@@ -16,6 +16,7 @@ router.post('/', auth, [
     check('ingredients', 'Ingredients Are Required').isArray().not().isEmpty()
 ], async (req, res) => {
     const errors = validationResult(req);
+    const update = JSON.parse(req.query.update);
     if (!errors.isEmpty()) {
         return res.status(400).json({ msgs: errors.array(), error: true });
     }
@@ -32,6 +33,9 @@ router.post('/', auth, [
         let recipe = await Recipe.findOne({name: name, user: user});
 
         if (recipe) {
+            if (!update) {
+                return res.status(400).json({msgs: [{msg: `Recipe ${name} Already Exists Would You Like To Update, Delete Or Change Name`}]});
+            }
             recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price, categories, yield, calories, nutrients}}, {new: true});
             const recipes = await Recipe.find({ user: user });
             return res.json({msgs: [{msg: `Recipe ${recipe.name} Updated Successfully`}], data: recipes, error: false});
