@@ -4,7 +4,7 @@ const User = require('../models/User');
 
 module.exports = async function(req, res, next) {
     // Get token from header
-    const token = req.header('x-auth-token');
+    const token = req.params.token ? req.params.token : req.header('x-auth-token');
 
     // check if no token
     if (!token) {

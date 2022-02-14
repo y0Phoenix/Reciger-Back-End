@@ -47,7 +47,7 @@ router.post('/', [
     }
 });
 
-router.get('/', auth, async (req, res) => {
+router.get('/:token', async (req, res) => {
     try {
         return res.json({isAuthenticated: true, error: false});
     } catch (err) {
