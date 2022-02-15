@@ -78,7 +78,7 @@ router.get('/', auth, async (req, res) => {
         }
     
         if (!recipes[0]) {
-            return res.status(400).json({msgs: [{msg: 'No Recipes Found For You'}], error: true});
+            return res.status(404).json({msgs: [{msg: 'No Recipes Found For You'}], error: true});
         }
 
         res.json(recipes);

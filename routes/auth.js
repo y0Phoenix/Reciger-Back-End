@@ -23,12 +23,12 @@ router.post('/', [
     try {
         let user = await User.findOne({email});
         if (!user) {
-            return res.status(404).json({msgs: [{msg: 'Invalid Credentials', error: true}]});
+            return res.status(401).json({msgs: [{msg: 'Invalid Credentials', error: true}]});
         }
-        const bool = bc.compare(password, user.password);
+        const bool = await bc.compare(password, user.password);
 
         if (!bool) {
-            return res.status(400).json({msgs: [{msg: 'Invalid Credentials', error: true}]});
+            return res.status(401).json({msgs: [{msg: 'Invalid Credentials', error: true}]});
         }
         const payload = {
             user: {
