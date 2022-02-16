@@ -38,7 +38,7 @@ router.post('/', [
         jwt.sign(payload, config.get('jwtSecret'), {expiresIn: 3600000}, async (err, token) => {
             if (err) throw err;
             const _user = await User.findById(user.id).select({password: 0});
-            res.json({token: token, data: _user, error: false});
+            res.json({token: token, data: _user,  isAuthenticated: true, error: false});
         });
 
         console.log(req.body);

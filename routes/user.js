@@ -77,7 +77,7 @@ router.post('/', [
             async (err, token) => {
                 if (err) throw err;
                 const user = await User.findById(user.id).select({password: 0});
-                res.json({ token: token, data, user, error: false });
+                res.json({ token: token, data, user, isAuthenticated: true, error: false });
             });
 
             console.log(req.body);
@@ -118,7 +118,7 @@ router.post('/update', auth, async (req, res) => {
             return res.status(400).json({msg: 'User Not Updated U3', error: true});
         }
         user = await User.findById(user.id).select({password: 0});
-        res.json({msgs: [{msg: 'User Updated Successfully'}], data: user, error: false})
+        res.json({msgs: [{msg: 'User Updated Successfully'}], isAuthenticated: true, data: user, error: false})
     }
     catch(err) {
         console.error(err);
