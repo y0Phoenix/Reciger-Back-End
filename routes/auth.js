@@ -55,7 +55,7 @@ router.get('/:token', async (req, res) => {
         if (!user) {
             return res.status(401).json({msg: 'User Unathorized', error: true});
         }
-        return res.json({data: user, isAuthenticated: true, error: false});
+        return res.json({data: user, isAuthenticated: true, error: false, token: req.params.token});
     } catch (err) {
         return res.status(500).json({isAuthenticated: false, error: true});
     }
