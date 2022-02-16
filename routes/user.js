@@ -74,9 +74,10 @@ router.post('/', [
             await ingredient.save();
 
             jwt.sign(payload, config.get('jwtSecret'), {expiresIn: 3600000},
-            (err, token) => {
+            async (err, token) => {
                 if (err) throw err;
-                res.json({ token: token, error: false });
+                const user = await User.findById(user.id).select({password: 0});
+                res.json({ token: token, data, user, error: false });
             });
 
             console.log(req.body);
@@ -116,7 +117,8 @@ router.post('/update', auth, async (req, res) => {
         if (!user) {
             return res.status(400).json({msg: 'User Not Updated U3', error: true});
         }
-        res.json({msgs: [{msg: 'User Updated Successfully'}], error: false})
+        user = await User.findById(user.id).select({password: 0});
+        res.json({msgs: [{msg: 'User Updated Successfully'}], data: user, error: false})
     }
     catch(err) {
         console.error(err);
