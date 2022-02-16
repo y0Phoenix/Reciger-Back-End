@@ -49,7 +49,12 @@ router.post('/', [
 
 router.get('/:token', async (req, res) => {
     try {
-        return res.json({isAuthenticated: true, error: false});
+        const decoded = jwt.verify(req.params.token, config.get('jwtSecret'));
+        const user = await User.findById(decoded.user.id).select({password: 0});
+        if (!user) {
+            return res.status(401).json({msg: 'User Unathorized', error: true});
+        }
+        return res.json({data: user, isAuthenticated: true, error: false});
     } catch (err) {
         return res.status(500).json({isAuthenticated: false, error: true});
     }
