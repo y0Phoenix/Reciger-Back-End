@@ -155,7 +155,7 @@ router.get('/', auth, async (req, res) => {
             ingredients = await Ingredient.find({user: id}).select({units: 0, calories: 0, nutrients: 0, __v: 0});
         }
         if (!ingredients[0]) {
-            return res.status(400).json({msgs: [{msg: 'No Ingredients Found', error: true}]});
+            return res.status(400).json({msgs: [{msg: 'No Ingredients Found For You', error: true}]});
         }
     
         res.json({data: ingredients});
