@@ -167,18 +167,32 @@ class NutritionAPI {
                 if (unit === 'ml' && !value <= 0) {
                     prop.obj.ml = (value / amount).toFixed(2);
                     prop.obj.floz = (value / (amount / 29.57)).toFixed(2);
-                    pref = pref === 'ml' || pref === 'floz' ? pref : 'ml';
-                    prop.obj.pref = prop.obj[pref];
+                    const p = pref === 'ml' || pref === 'floz' ? pref : 'ml';
+                    prop.obj.pref = prop.obj[p];
                 }
                 else if (unit === 'g' && !value <= 0) {
                     prop.obj.g = (value / amount).toFixed(2);
                     prop.obj.oz = (value / (amount / 28.35)).toFixed(2);
-                    pref = pref === 'g' || pref === 'oz' ? pref : 'g';
-                    prop.obj.pref = prop.obj[pref];
+                    const p = pref === 'g' || pref === 'oz' ? pref : 'g';
+                    prop.obj.pref = prop.obj[p];
+                }
+                if (pref === 'ea') {
+                    prop.obj.pref = value;
                 }
             }
         });
-        if (unit === 'ml') {
+        if (pref === 'ea') {
+            obj.calories.pref = cal;
+            if (unit === 'ml') {
+                obj.calories.ml = (cal / amount).toFixed(2);
+                obj.calories.floz = (cal / (amount / 29.57)).toFixed(2);    
+            }
+            else {
+                obj.calories.g = (cal / amount).toFixed(2);
+                obj.calories.oz = (cal / (amount / 28.35)).toFixed(2);    
+            }
+        }
+        else if (unit === 'ml') {
             obj.calories.ml = (cal / amount).toFixed(2);
             obj.calories.floz = (cal / (amount / 29.57)).toFixed(2);
             obj.calories.pref = obj.calories.ml;
