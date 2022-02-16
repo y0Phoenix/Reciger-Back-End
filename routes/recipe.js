@@ -9,6 +9,7 @@ const Recipe = require('../models/Recipe');
 const updateIngredientIng = require('../functions/updateIngredientIng');
 const updatUserCategories = require('../functions/updateUserCategories');
 const updateRIT = require('../functions/updateRIT');
+const updateUserRecents = require('../functions/updateUserRecents');
 
 // @POST create recipe
 router.post('/', auth, [
@@ -37,7 +38,8 @@ router.post('/', auth, [
                 return res.status(400).json({msgs: [{msg: `Recipe ${name} Already Exists Would You Like To Update, Delete Or Change Name`}]});
             }
             recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price, categories, yield, calories, nutrients}}, {new: true});
-            const recipes = await Recipe.find({ user: user });
+            await updateUserRecents(req.user, 'recipes', recipe);
+            const recipes = await Recipe.find({ user: user }).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
             return res.json({msgs: [{msg: `Recipe ${recipe.name} Updated Successfully`}], data: recipes, error: false});
         }
 
@@ -53,6 +55,7 @@ router.post('/', auth, [
             instructions
         });
         await updatUserCategories(categories, req.user, 'recipe');
+        await updateUserRecents(req.user, 'recipes', recipe);
         await recipe.save();
         const recipes = await Recipe.find({user: req.user.id}).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
 
@@ -78,7 +81,7 @@ router.get('/', auth, async (req, res) => {
         }
     
         if (!recipes[0]) {
-            return res.status(400).json({msgs: [{msg: 'No Recipes Found For You'}], error: true});
+            return res.status(404).json({msgs: [{msg: 'No Recipes Found For You'}], error: true});
         }
 
         res.json(recipes);

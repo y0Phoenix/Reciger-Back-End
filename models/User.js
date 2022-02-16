@@ -40,6 +40,52 @@ const UserSchema = new mon.Schema({
         type: String,
         unique: true,
         required: true
+    },
+    recents: {
+        ingredients: [{
+            ing: {
+                type: mon.Schema.Types.ObjectId,
+                required: true
+            },
+            name: {
+                type: String,
+                required: true
+            },
+            categories: {
+                type: [String],
+                default: []
+            },
+            calories: {
+                type: Number,
+                default: 0
+            },
+            price: {
+                type: String,
+                default: '$0.00'
+            }
+        }],
+        recipes: [{
+            rec: {
+                type: mon.Schema.Types.ObjectId,
+                required: true
+            },
+            name: {
+                type: String,
+                required: true
+            },
+            categories: {
+                type: [String],
+                default: []
+            },
+            calories: {
+                type: Number,
+                default: 0
+            },
+            price: {
+                type: String,
+                default: '$0.00'
+            }
+        }]
     }
 });
 

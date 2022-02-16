@@ -8,7 +8,9 @@ const Recipe = require('../models/Recipe');
 const updateRecipePrice = require('../functions/updateRecipePrice');
 const updateRecipeNutrients = require('../functions/updateRecipeNutrients');
 const updateUserCategories = require('../functions/updateUserCategories');
+const updateUserRecents = require('../functions/updateUserRecents');
 const NutritionAPI = require('../classes/NutritionAPI');
+const checkUnits = require('../functions/checkUnits');
 
 // @POST create ingredient
 router.post('/', auth, [
@@ -19,13 +21,17 @@ router.post('/', auth, [
         if (!errors.isEmpty()) {
             return res.status(400).json({msgs: errors.array(), error: true});
         }
-
         const {
             name, 
             price = '$0.00', 
             units = {weight: ['oz'], volume: ['floz'], prefered: user.preferences.measurements[0]}, 
             categories,
         } = req.body;
+        const bool = checkUnits(units.prefered);
+        if (!bool) {
+            return res.status(400).json({msgs: [{mgs: `Invalid Unit of Measurement
+            Valid Measurements are g, kg, oz, lb, ml, l, tsp, tbl, cup, quart, gallon, ea`}], error: true});
+        }
         const noNut = JSON.parse(req.query.noNut);
         const user = req.user.id;
         let ingredient = await Ingredient.find({name: name}, {user: user});
@@ -52,6 +58,7 @@ router.post('/', auth, [
             nutrients
         });
         await updateUserCategories(categories, req.user, 'ingredient');
+        await updateUserRecents(req.user, 'ingredients', ingredient);
         await ingredient.save();
 
         let recipes = await Recipe.find({user: user});
@@ -92,12 +99,17 @@ router.post('/update', [
         if (!errors.isEmpty()) {
             return res.status(400).json({msgs: errors.array(), error: true});
         }
-        const {name, price, _id, categories} = req.body;
+        const {name, price, _id, categories, units} = req.body;
+        const bool = checkUnits(units.prefered);
+        if (!bool) {
+            return res.status(400).json({msgs: [{mgs: `Invalid Unit of Measurement
+            Valid Measurements are g, kg, oz, lb, ml, l, tsp, tbl, cup, quart, gallon, ea`}], error: true});
+        }
         let ingredient = await Ingredient.findById(_id);
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Found Try Again Later'}], error: true});
         }
-        ingredient = await Ingredient.findOneAndUpdate({_id: _id}, {$set: {name, price, categories}}, {new: true});
+        ingredient = await Ingredient.findOneAndUpdate({_id: _id}, {$set: {name, price, categories, units}}, {new: true});
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Updated I2'}], error: true});
         }
@@ -120,6 +132,7 @@ router.post('/update', [
                 await rec.save();
             };
         }
+        await updateUserRecents(req.user, 'ingredients', ingredient);
         const ingredients = await Ingredient.find({user: req.user.id}).select({units: 0, calories: 0, nutrients: 0, __v: 0});;
         res.json({msgs: [{msg: `Ingredient ${name} Updated Successfully`}], error: false, data: ingredients});
     }
