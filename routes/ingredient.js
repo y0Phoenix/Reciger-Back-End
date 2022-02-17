@@ -33,6 +33,7 @@ router.post('/', auth, [
             Valid Measurements are g, kg, oz, lb, ml, l, tsp, tbl, cup, quart, gallon, ea`}], error: true});
         }
         const noNut = JSON.parse(req.query.noNut);
+        const all = JSON.parse(req.query.all);
         const user = req.user.id;
         let ingredient = await Ingredient.find({name: name}, {user: user});
         if (ingredient[0]) {
@@ -79,7 +80,13 @@ router.post('/', auth, [
             }
         }
 
-        const ingredients = await Ingredient.find({user: user}).select({units: 0, calories: 0, nutrients: 0, __v: 0});
+        let ingredients
+        if (all) {
+            ingredients = await Ingredient.find({user: user});
+        }
+        else {
+            ingredients = await Ingredient.find({user: user}).select({calories: 0, nutrients: 0, __v: 0});
+        }
 
         res.json({ msgs: [{msg: `Ingredient ${ingredient.name} Created Successfully`}], error: false, data: ingredients});
     }
@@ -101,6 +108,7 @@ router.post('/update', [
         }
         const {name, price, _id, categories, units} = req.body;
         const bool = checkUnits(units.prefered);
+        const all = JSON.parse(req.params.all);
         if (!bool) {
             return res.status(400).json({msgs: [{mgs: `Invalid Unit of Measurement
             Valid Measurements are g, kg, oz, lb, ml, l, tsp, tbl, cup, quart, gallon, ea`}], error: true});
@@ -133,7 +141,13 @@ router.post('/update', [
             };
         }
         await updateUserRecents(req.user, 'ingredients', ingredient);
-        const ingredients = await Ingredient.find({user: req.user.id}).select({units: 0, calories: 0, nutrients: 0, __v: 0});;
+        let ingredients;
+        if (all) {
+            ingredients = await Ingredient.find({user: req.user.id});
+        }
+        else {
+            ingredients = await Ingredient.find({user: req.user.id}).select({calories: 0, nutrients: 0, __v: 0});
+        }
         res.json({msgs: [{msg: `Ingredient ${name} Updated Successfully`}], error: false, data: ingredients});
     }
     catch(err) {

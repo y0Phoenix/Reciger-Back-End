@@ -84,6 +84,10 @@ const UserSchema = new mon.Schema({
             price: {
                 type: String,
                 default: '$0.00'
+            },
+            yield: {
+                type: String,
+                default: '1 Person'
             }
         }]
     }

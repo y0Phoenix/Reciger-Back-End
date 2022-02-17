@@ -38,7 +38,7 @@ router.post('/', [
         jwt.sign(payload, config.get('jwtSecret'), {expiresIn: 3600000}, async (err, token) => {
             if (err) throw err;
             const _user = await User.findById(user.id).select({password: 0});
-            res.json({token: token, data: _user, error: false});
+            res.json({token: token, data: _user,  isAuthenticated: true, error: false});
         });
 
         console.log(req.body);
@@ -55,7 +55,7 @@ router.get('/:token', async (req, res) => {
         if (!user) {
             return res.status(401).json({msg: 'User Unathorized', error: true});
         }
-        return res.json({data: user, isAuthenticated: true, error: false});
+        return res.json({data: user, isAuthenticated: true, error: false, token: req.params.token});
     } catch (err) {
         return res.status(500).json({isAuthenticated: false, error: true});
     }
