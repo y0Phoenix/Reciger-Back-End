@@ -79,7 +79,7 @@ router.post('/', auth, [
             }
         }
 
-        const ingredients = await Ingredient.find({user: user}).select({units: 0, calories: 0, nutrients: 0, __v: 0});
+        const ingredients = await Ingredient.find({user: user}).select({calories: 0, nutrients: 0, __v: 0});
 
         res.json({ msgs: [{msg: `Ingredient ${ingredient.name} Created Successfully`}], error: false, data: ingredients});
     }
@@ -133,7 +133,7 @@ router.post('/update', [
             };
         }
         await updateUserRecents(req.user, 'ingredients', ingredient);
-        const ingredients = await Ingredient.find({user: req.user.id}).select({units: 0, calories: 0, nutrients: 0, __v: 0});;
+        const ingredients = await Ingredient.find({user: req.user.id}).select({calories: 0, nutrients: 0, __v: 0});;
         res.json({msgs: [{msg: `Ingredient ${name} Updated Successfully`}], error: false, data: ingredients});
     }
     catch(err) {
