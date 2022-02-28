@@ -18,7 +18,7 @@ async function updateUserRecents(user, type, data) {
         }
         if (type === 'recipes') {
             user.recents[type].push({[id]: data.id, name: data.name, categories: data.categories, 
-            calories: type === 'ingredients' ? data.calories.pref: data.calories, price: data.price, yield: `${data.yield.number}${data.yield.string}`});    
+            calories: type === 'ingredients' ? data.calories.pref: data.calories, price: data.price, yield: `${data.yield.number} ${data.yield.string}`});    
         }
         user.recents[type].push({[id]: data.id, name: data.name, categories: data.categories, 
         calories: type === 'ingredients' ? data.calories.pref: data.calories, price: data.price});
