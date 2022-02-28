@@ -15,7 +15,7 @@ async function updatUserCategories(cats, user, type) {
     if (ret.length > 0) {
         ret.forEach((cat, i, arr) => {
 
-            user.categories[type].push(cat);
+            user.categories[type].push(cat.replace(/s/g, ''));
         })
         await user.save();
     }
