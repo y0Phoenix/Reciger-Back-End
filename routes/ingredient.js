@@ -21,6 +21,7 @@ router.post('/', auth, [
         if (!errors.isEmpty()) {
             return res.status(400).json({msgs: errors.array(), error: true});
         }
+        const user = req.user;
         const {
             name, 
             price = '$0.00', 
@@ -34,8 +35,7 @@ router.post('/', auth, [
         }
         const noNut = JSON.parse(req.query.noNut);
         const all = JSON.parse(req.query.all);
-        const user = req.user.id;
-        let ingredient = await Ingredient.find({name: name}, {user: user});
+        let ingredient = await Ingredient.find({name: name}, {user: user.id});
         if (ingredient[0]) {
             return res.status(400).json({ msgs: [{ msg: 'Ingredient Already Exists' }], error: true });
         }
@@ -62,7 +62,7 @@ router.post('/', auth, [
         await updateUserRecents(req.user, 'ingredients', ingredient);
         await ingredient.save();
 
-        let recipes = await Recipe.find({user: user});
+        let recipes = await Recipe.find({user: user.id});
         if (recipes[0]) {
             for (let i = 0; i < recipes.length; i++) {
                 let recipe = await Recipe.findById(recipes[i].id);
@@ -82,10 +82,10 @@ router.post('/', auth, [
 
         let ingredients
         if (all) {
-            ingredients = await Ingredient.find({user: user});
+            ingredients = await Ingredient.find({user: user.id});
         }
         else {
-            ingredients = await Ingredient.find({user: user}).select({calories: 0, nutrients: 0, __v: 0});
+            ingredients = await Ingredient.find({user: user.id}).select({calories: 0, nutrients: 0, __v: 0});
         }
 
         res.json({ msgs: [{msg: `Ingredient ${ingredient.name} Created Successfully`}], error: false, data: ingredients});
@@ -108,7 +108,7 @@ router.post('/update', [
         }
         const {name, price, _id, categories, units} = req.body;
         const bool = checkUnits(units.prefered);
-        const all = JSON.parse(req.params.all);
+        const all = JSON.parse(req.query.all);
         if (!bool) {
             return res.status(400).json({msgs: [{mgs: `Invalid Unit of Measurement
             Valid Measurements are g, kg, oz, lb, ml, l, tsp, tbl, cup, quart, gallon, ea`}], error: true});
