@@ -13,7 +13,7 @@ async function updateUserRecents(user, type, data) {
         }
         else {
             const yield = `${data.yield.number} ${data.yield.string}`;
-            user.recents[type].unshift({rec: data.id, name: data.name, categories: data.categories, calories: data.calories.pref, price: data.price, yield: yield});
+            user.recents[type].unshift({rec: data.id, name: data.name, categories: data.categories, calories: data.calories, price: data.price, yield: yield});
         }     
 
     }

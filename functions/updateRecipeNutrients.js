@@ -68,7 +68,8 @@ function updateRecipeNutrients(ingredients) {
         }
     }
     ingredients.forEach((ing, i, arr) => {
-        const {amount, unit} = ing.quantity;
+        let {amount, unit} = ing.quantity;
+        amount = parseInt(amount);
         obj.calories = parseInt(obj.calories + (ing.calories.pref * calc(amount, unit)));
         obj.nutrients.sodium.amount = parseInt(obj.nutrients.sodium.amount + (ing.nutrients.sodium.pref * calc(amount, unit)));
         obj.nutrients.iron.amount = parseInt(obj.nutrients.iron.amount + (ing.nutrients.iron.pref * calc(amount, unit)));
