@@ -62,6 +62,10 @@ const UserSchema = new mon.Schema({
             price: {
                 type: String,
                 default: '$0.00'
+            },
+            img: {
+                type: String,
+                default: ''
             }
         }],
         recipes: [{
@@ -88,6 +92,10 @@ const UserSchema = new mon.Schema({
             yield: {
                 type: String,
                 default: '1 Person'
+            },
+            img: {
+                type: String,
+                default: ''
             }
         }]
     }

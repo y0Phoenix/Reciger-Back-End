@@ -97,27 +97,35 @@ router.post('/', auth, [
 });
 
 // @POST update ingredient
-router.post('/update', [
-    check('price', 'Please Specify A New Price Or Name To Update').not().isEmpty(),
-    check('_id', '_id Is Required').not().isEmpty()
-], auth, async (req, res) => {
+router.post('/update/:id', auth, async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({msgs: errors.array(), error: true});
-        }
-        const {name, price, _id, categories, units} = req.body;
-        const bool = checkUnits(units.prefered);
+        const {name, price, categories, units} = req.body;
+        const id = req.params.id;
+        const _bool = checkUnits(units.prefered);
         const all = JSON.parse(req.query.all);
-        if (!bool) {
+        const noNut = JSON.parse(req.query.noNut);
+        if (!_bool) {
             return res.status(400).json({msgs: [{mgs: `Invalid Unit of Measurement
             Valid Measurements are g, kg, oz, lb, ml, l, tsp, tbl, cup, quart, gallon, ea`}], error: true});
         }
-        let ingredient = await Ingredient.findById(_id);
+        let ingredient = await Ingredient.findById(id);
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Found Try Again Later'}], error: true});
         }
-        ingredient = await Ingredient.findOneAndUpdate({_id: _id}, {$set: {name, price, categories, units}}, {new: true});
+        if (!noNut) {
+            const api = new NutritionAPI();
+            var {calories, nutrients, error} = await api.foodSearchAndParse(name, units.prefered);
+            if (error.status !== 200) {
+                return res.status(error.status)
+                .json({msgs: [{msg: error.statusText.includes('No Good Matches Found') ? error.statusText : 'Error While Creating Ingredient Try Again Later'}], error: true});
+            }
+        }
+        if (calories || nutrients) {
+            ingredient = await Ingredient.findOneAndUpdate({_id: id}, {$set: {name, price, categories, units, nutrients, calories}}, {new: true});
+        }
+        else {
+            ingredient = await Ingredient.findOneAndUpdate({_id: id}, {$set: {name, price, categories, units,}}, {new: true});
+        }
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Updated I2'}], error: true});
         }
@@ -141,6 +149,25 @@ router.post('/update', [
             };
         }
         await updateUserRecents(req.user, 'ingredients', ingredient);
+        const bool = async () => {
+            let matches = [];
+            for (let i = 0; i < req.user.recents.recipes.length; i++) {
+                let bool;
+                const recipe = await Recipe.findById(req.user.recents.recipes[i].rec);
+                if (recipe) {
+                    recipe.ingredients.forEach(ing => {
+                        if (ing.name === ingredient.name) return bool = true;
+                    });
+                }
+                if (bool) matches.push(recipe);
+            }
+            if (matches[0]) return matches;
+            return null;
+        }
+        const matches = await bool();
+        if (matches) {
+            matches.forEach((async mat => await updateUserRecents(req.user, 'recipes', mat)));
+        }
         let ingredients;
         if (all) {
             ingredients = await Ingredient.find({user: req.user.id});
