@@ -37,7 +37,7 @@ async function updateRecipePrice(ingredients, pref) {
         }
     }
     var price = 0
-    ingredients.forEach(ing => {
+    ingredients.forEach((ing, i, arr) => {
         let amount = ing.quantity.amount;
         let _price = ing.price; 
         _price = _price.split(pref).join('');

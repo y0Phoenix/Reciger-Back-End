@@ -16,6 +16,7 @@ router.post('/', [
         return res.status(403).json({msgs: errors.array(), error: true});
     }
     let {name, type} = req.body;
+    type = type.toLowerCase();
     const user = req.user;
     var bool = true;
     try {
