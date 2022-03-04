@@ -69,7 +69,7 @@ const UserSchema = new mon.Schema({
             },
             date: {
                 type: Date,
-                default: Date.now()
+                default: Date.now
             }
         }],
         recipes: [{
@@ -103,7 +103,7 @@ const UserSchema = new mon.Schema({
             },
             date: {
                 type: Date,
-                default: Date.now()
+                default: Date.now
             }
         }]
     }
