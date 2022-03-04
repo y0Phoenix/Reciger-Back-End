@@ -9,11 +9,11 @@ async function updateUserRecents(user, type, data) {
     if (i !== -1) {
         user.recents[type].splice(i, 1);
         if (type === 'ingredients') {
-            user.recents[type].unshift({ing: data.id, name: data.name, categories: data.categories, calories: data.calories.pref, price: data.price});
+            user.recents[type].unshift({ing: data.id, name: data.name, categories: data.categories, calories: data.calories.pref, price: data.price, date: Date.now()});
         }
         else {
             const yield = `${data.yield.number} ${data.yield.string}`;
-            user.recents[type].unshift({rec: data.id, name: data.name, categories: data.categories, calories: data.calories, price: data.price, yield: yield});
+            user.recents[type].unshift({rec: data.id, name: data.name, categories: data.categories, calories: data.calories, price: data.price, yield: yield, date: Date.now()});
         }     
 
     }

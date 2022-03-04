@@ -66,6 +66,10 @@ const UserSchema = new mon.Schema({
             img: {
                 type: String,
                 default: ''
+            },
+            date: {
+                type: Date,
+                default: Date.now()
             }
         }],
         recipes: [{
@@ -96,6 +100,10 @@ const UserSchema = new mon.Schema({
             img: {
                 type: String,
                 default: ''
+            },
+            date: {
+                type: Date,
+                default: Date.now()
             }
         }]
     }
