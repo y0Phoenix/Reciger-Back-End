@@ -77,14 +77,14 @@ router.get('/', auth, async (req, res) => {
             recipes = await Recipe.find({user: id});
         }
         else {
-            recipes = await Recipe.find({user: id}).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
+            recipes = await Recipe.find({user: id}).select({ingredients: 0, nutrients: 0, yield: 0, instructions: 0, __v: 0});
         }
     
         if (!recipes[0]) {
             return res.status(404).json({msgs: [{msg: 'No Recipes Found For You'}], error: true});
         }
 
-        res.json(recipes);
+        res.json({data: recipes});
     } catch (err) {
         console.error(err);
         res.status(500).json({msg: 'Server Error R1', error: true});
