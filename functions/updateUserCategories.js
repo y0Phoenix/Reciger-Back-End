@@ -7,7 +7,8 @@
 async function updatUserCategories(cats, user, type) {
     var ret = []
     cats.forEach((cat, i, arr) => {
-        const index = user.categories[type].indexOf(cat.replace(/s/g, ''));
+        cat = cat.replace(/s/g, '')
+        const index = user.categories[type].indexOf(cat);
         if (index <= -1) {
             ret.push(cat);
         }
