@@ -214,6 +214,7 @@ router.delete('/:id', auth, async (req, res) => {
         if (!ingredient) {
             return res.status(400).json({msgs: [{msg: 'Ingredient Not Found'}], error: true});
         }
+        await updateUserRecents(req.user, 'ingredients', ingredient, true);
         await Ingredient.findByIdAndRemove(id);
         const recipes = await Recipe.find({user: req.user.id});
         if (recipes) {

@@ -103,6 +103,7 @@ router.delete('/:id', auth, async (req, res) => {
         if (!recipe) {
             return res.status(400).json({msgs: [{msg: 'Recipe Not Found Try Again Later'}], error: true});
         }
+        await updateUserRecents(req.user, 'recipes', recipe, true);
         await Recipe.findByIdAndDelete(id);
         const recipes = await Recipe.find({user: req.user.id}).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
         res.json({msgs: [{msg: `Recipe ${recipe.name} Deleted Successfully`}], error: false, data: recipes});

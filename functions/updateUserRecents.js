@@ -3,11 +3,12 @@
  * @param  {string} type the array that needs changing 
  * @param  {{}} data the data to push into the array
  */
-async function updateUserRecents(user, type, data) {
+async function updateUserRecents(user, type, data, del = false) {
     const id = type === 'ingredients' ? 'ing' : 'rec';
     const i = user.recents[type].map(recent => recent.name).indexOf(data.name);
     if (i !== -1) {
         user.recents[type].splice(i, 1);
+        if (del) return await user.save();
         if (type === 'ingredients') {
             user.recents[type].unshift({ing: data.id, name: data.name, categories: data.categories, calories: data.calories.pref, price: data.price, date: Date.now()});
         }
