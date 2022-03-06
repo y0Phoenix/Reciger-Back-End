@@ -119,9 +119,9 @@ router.get('/:id', auth, async (req, res) => {
     try {
         const recipe = await Recipe.findById(id);
         if (!recipe) {
-            return res.status(404).json({msgs: [{msg: 'recipe Not Found Try Again Later'}], error: true});
+            return res.status(404).json({msgs: [{msg: 'Recipe Not Found Try Again Later'}], error: true});
         }
-        return res.json({msgs: [{msg: `${recipe.name} Found`}], error: false, data: recipe});
+        return res.json({msgs: [{msg: `${recipe.name} Found Successfully`}], error: false, data: recipe});
     }
     catch(err) {
         console.error(err);
