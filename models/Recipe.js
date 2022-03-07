@@ -13,6 +13,10 @@ const RecipeSchema = new mon.Schema({
         type: String,
         default: ''
     },
+    type: {
+        type: String,
+        default: 'recipe'
+    },
     ingredients: [{
         quantity: {
             unit: {
@@ -370,8 +374,14 @@ const RecipeSchema = new mon.Schema({
         default: []
     },
     calories: {
-        type: Number,
-        default: 0
+        total: {
+            type: Number,
+            default: 0
+        },
+        g: {
+            type: Number,
+            default: 0
+        }
     },
     yield: {
         number: {
@@ -382,6 +392,10 @@ const RecipeSchema = new mon.Schema({
             type: String,
             default: ''
         }
+    },
+    totalAmount: {
+        type: Number,
+        default: 0
     },
     instructions: {
         type: String,

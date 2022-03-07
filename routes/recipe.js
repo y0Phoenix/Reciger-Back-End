@@ -10,6 +10,25 @@ const updateIngredientIng = require('../functions/updateIngredientIng');
 const updatUserCategories = require('../functions/updateUserCategories');
 const updateRIT = require('../functions/updateRIT');
 const updateUserRecents = require('../functions/updateUserRecents');
+const Ingredient = require('../models/Ingredient');
+
+async function createIngredient(params) {
+    const {name, price, user, units, categories, calories, nutrients} = params;
+    let ingredient = Ingredient.findOne({name: name, user: user});
+            if (ingredient) {
+                return res.json({msgs: [{msg: 'Ingredient Already Exists For This Recipe'}]});
+            }
+            ingredient = new Ingredient({
+                name,
+                price: parseInt(price.replace(/$/g, '')) / totalAmount,
+                user,
+                units,
+                categories,
+                calories: calories.g,
+                nutrients: nutrients.g
+            });
+            await ingredient.save();
+}
 
 // @POST create recipe
 router.post('/', auth, [
@@ -18,26 +37,47 @@ router.post('/', auth, [
 ], async (req, res) => {
     const errors = validationResult(req);
     const update = JSON.parse(req.query.update);
+    const ingredient = JSON.parse(req.query.ingredient);
     if (!errors.isEmpty()) {
         return res.status(400).json({ msgs: errors.array(), error: true });
     }
     try {
-        let {name = '', ingredients = [], categories = [], yield = {}, instructions = ''} = req.body;
+        let {
+            name = '', 
+            ingredients = [], 
+            categories = [], 
+            yield = {}, 
+            instructions = '',
+            units = {weight: ['oz'], volume: ['floz'], prefered: user.preferences.measurements[0]}} = req.body;
 
         var price = await updateRecipePrice(ingredients, req.user.preferences.money);
         ingredients = await updateIngredientIng(ingredients);
         ingredients = await updateRIT(ingredients);
-        const {calories, nutrients} = await updateRecipeNutrients(ingredients);
+        const {calories, nutrients, totalAmount} = await updateRecipeNutrients(ingredients);
 
         const user = req.user.id;
 
         let recipe = await Recipe.findOne({name: name, user: user});
 
         if (recipe) {
-            if (!update) {
-                return res.status(400).json({msgs: [{msg: `Recipe ${name} Already Exists Would You Like To Update, Delete Or Change Name`}]});
+            if (!update) return res.status(400).json({msgs: [{msg: `Recipe ${name} Already Exists Would You Like To Update, Delete Or Change Name`}]});
+            recipe = await Recipe.findOneAndUpdate({name: name, user: user}, 
+            {$set: {name, ingredients, price, categories, yield, calories, nutrients, instructions}}, {new: true});
+            if (ingredient) {
+                let ingredient = await Ingredient.findOne({user: user, name: name});
+                if (!ingredient) {
+                    await createIngredient({name, price: parseInt(price.replace(/$/g, '')) / totalAmount, 
+                    user, units, categories, calories: calories.g, nutrients: nutrients.g});
+                }
+                else {
+                    await Ingredient.findOneAndUpdate({name: name, user: user}, 
+                    {$set: {name, price: parseInt(price.replace(/$/g, '')) / totalAmount,
+                    user: user, units: units, categories, calories: calories.g, 
+                    nutrients: nutrients.g}}, {new: true});
+                }
+                ingredient = await Ingredient.findOne({name: name, user: user});
+                if (!ingredient) return res.json({msgs: [{msg: 'Error While Updating Ingredient Version Of Recipe'}]});
             }
-            recipe = await Recipe.findOneAndUpdate({name: name, user: user}, {$set: {name, ingredients, price, categories, yield, calories, nutrients, instructions}}, {new: true});
             await updateUserRecents(req.user, 'recipes', recipe);
             const recipes = await Recipe.find({ user: user }).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
             return res.json({msgs: [{msg: `Recipe ${recipe.name} Updated Successfully`}], data: recipes, error: false});
@@ -50,10 +90,28 @@ router.post('/', auth, [
             user,
             categories,
             yield,
-            calories,
+            calories: calories.total,
             nutrients,
-            instructions
+            instructions,
+            totalAmount,
+            type: ingredient ? 'ingredient' : 'recipe'
         });
+        if (ingredient) {
+            let ingredient = Ingredient.findOne({name: name, user: user});
+            if (ingredient) {
+                return res.json({msgs: [{msg: 'Ingredient Already Exists For This Recipe'}]});
+            }
+            ingredient = new Ingredient({
+                name,
+                price: parseInt(price.replace(/$/g, '')) / totalAmount,
+                user,
+                units,
+                categories,
+                calories: calories.g,
+                nutrients: nutrients.g
+            });
+            await ingredient.save();
+        }
         await updatUserCategories(categories, req.user, 'recipe');
         await updateUserRecents(req.user, 'recipes', recipe);
         await recipe.save();

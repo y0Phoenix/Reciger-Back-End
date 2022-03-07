@@ -143,8 +143,8 @@ router.post('/update/:id', auth, async (req, res) => {
                 })
                 rec.price = await updateRecipePrice(rec.ingredients, req.user.preferences.money);
                 const {calories, nutrients} = await updateRecipeNutrients(rec.ingredients);
-                rec.calories = calories;
-                rec.nutrients = nutrients;
+                rec.calories = calories.total;
+                rec.nutrients = nutrients.total;
                 await rec.save();
             };
         }
