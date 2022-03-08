@@ -168,14 +168,13 @@ router.post('/update/:id', auth, async (req, res) => {
         if (matches) {
             matches.forEach((async mat => await updateUserRecents(req.user, 'recipes', mat)));
         }
-        let ingredients;
         if (all) {
-            ingredients = await Ingredient.find({user: req.user.id});
+            ingredient = await Ingredient.find(ingredient.id);
         }
         else {
-            ingredients = await Ingredient.find({user: req.user.id}).select({calories: 0, nutrients: 0, __v: 0});
+            ingredient = await Ingredient.findById(ingredient.id).select({calories: 0, nutrients: 0, __v: 0});
         }
-        res.json({msgs: [{msg: `Ingredient ${name} Updated Successfully`}], error: false, data: ingredients});
+        res.json({msgs: [{msg: `Ingredient ${name} Updated Successfully`}], error: false, data: ingredient});
     }
     catch(err) {
         console.error(err);

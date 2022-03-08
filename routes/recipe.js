@@ -86,8 +86,8 @@ router.post('/', auth, [
             recipe = await Recipe.findOneAndUpdate({name: name, user: user}, 
             {$set: {name, ingredients, price, categories, yield, calories, nutrients, instructions, type: Correlative ? 'ingredient' : 'recipe'}}, {new: true});
             await updateUserRecents(req.user, 'recipes', recipe);
-            const recipes = await Recipe.find({ user: user }).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
-            return res.json({msgs: [{msg: `Recipe ${recipe.name} Updated Successfully`}], data: recipes, error: false});
+            recipe = await Recipe.findById(recipe.id).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
+            return res.json({msgs: [{msg: `Recipe ${recipe.name} Updated Successfully`}], data: recipe, error: false});
         }
 
         recipe = new Recipe({
