@@ -14,7 +14,7 @@ async function updateUserRecents(user, type, data, del = false) {
         }
         else {
             const yield = `${data.yield.number} ${data.yield.string}`;
-            user.recents[type].unshift({rec: data.id, name: data.name, categories: data.categories, calories: data.calories, price: data.price, yield: yield, date: Date.now()});
+            user.recents[type].unshift({rec: data.id, name: data.name, categories: data.categories, calories: data.calories.total, price: data.price, yield: yield, date: Date.now()});
         }     
 
     }
@@ -23,7 +23,7 @@ async function updateUserRecents(user, type, data, del = false) {
             user.recents[type].shift();
         }
         if (type === 'recipes') {
-            user.recents[type].push({[id]: data.id, name: data.name, categories: data.categories, 
+            user.recents[type].push({[id]: data.id, name: data.name, categories: data.categories.total, 
             calories: data.calories, price: data.price, yield: `${data.yield.number} ${data.yield.string}`});    
         }
         else {

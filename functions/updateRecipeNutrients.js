@@ -123,9 +123,9 @@ function updateRecipeNutrients(ingredients) {
     });
     typesArr.forEach(type => 
         obj.nutrients.g[type].amount = 
-        parseInt(obj.nutrients.g[type].amount / totalAmount)    
+        parseInt(obj.nutrients.g[type].amount / obj.totalAmount)    
     );
-    obj.calories.g = obj.calories.total / obj.totalAmount;
+    obj.calories.g = parseFloat((obj.calories.total / obj.totalAmount).toFixed(2));
     return obj;
 }
 
