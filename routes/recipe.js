@@ -86,7 +86,6 @@ router.post('/', auth, [
             recipe = await Recipe.findOneAndUpdate({name: name, user: user}, 
             {$set: {name, ingredients, price, categories, yield, calories, nutrients, instructions, type: Correlative ? 'ingredient' : 'recipe'}}, {new: true});
             await updateUserRecents(req.user, 'recipes', recipe);
-            recipe = await Recipe.findById(recipe.id).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
             return res.json({msgs: [{msg: `Recipe ${recipe.name} Updated Successfully`}], data: recipe, error: false});
         }
 
@@ -122,9 +121,8 @@ router.post('/', auth, [
         await updatUserCategories(categories, req.user, 'recipe');
         await updateUserRecents(req.user, 'recipes', recipe);
         await recipe.save();
-        const recipes = await Recipe.find({user: req.user.id}).select({ingredients: 0, nutrients: 0, calories: 0, yield: 0, instructions: 0, __v: 0});
 
-        res.json({ msgs: [{msg: `Recipe ${name} Create Successfully`}], error: false, data: recipes });
+        res.json({ msgs: [{msg: `Recipe ${name} Create Successfully`}], error: false, data: recipe });
         
     } catch (err) {
         console.error(err);

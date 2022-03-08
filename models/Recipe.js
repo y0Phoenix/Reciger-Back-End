@@ -284,86 +284,171 @@ const RecipeSchema = new mon.Schema({
         }
     }],
     nutrients: {
-        protein: {
-            unit: {
-                type: String,
-                default: 'g'
+        g: {
+
+            protein: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
             },
-            amount: {
-                type: Number,
-                default: 0
-            }
-        },
-        fat: {
-            unit: {
-                type: String,
-                default: 'g'
+            fat: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
             },
-            amount: {
-                type: Number,
-                default: 0
-            }
-        },
-        carbs: {
-            unit: {
-                type: String,
-                default: 'g'
+            carbs: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
             },
-            amount: {
-                type: Number,
-                default: 0
-            }
-        },
-        sugars: {
-            unit: {
-                type: String,
-                default: 'g'
+            sugars: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
             },
-            amount: {
-                type: Number,
-                default: 0
-            }
-        },
-        fiber: {
-            unit: {
-                type: String,
-                default: 'g'
+            fiber: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
             },
-            amount: {
-                type: Number,
-                default: 0
-            }
-        },
-        calcium: {
-            unit: {
-                type: String,
-                default: 'mg'
+            calcium: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
             },
-            amount: {
-                type: Number,
-                default: 0
-            }
-        },
-        iron: {
-            unit: {
-                type: String,
-                default: 'mg'
+            iron: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
             },
-            amount: {
-                type: Number,
-                default: 0
-            }
-        },
-        sodium: {
-            unit: {
-                type: String,
-                default: 'mg'
+            sodium: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
             },
-            amount: {
-                type: Number,
-                default: 0
-            }
         },
+        total: {
+            protein: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            fat: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            carbs: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            sugars: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            fiber: {
+                unit: {
+                    type: String,
+                    default: 'g'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            calcium: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            iron: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
+            },
+            sodium: {
+                unit: {
+                    type: String,
+                    default: 'mg'
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
+            },
+        }
     },
     price: {
         type: String,
