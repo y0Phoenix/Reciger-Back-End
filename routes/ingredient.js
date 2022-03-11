@@ -187,6 +187,15 @@ router.get('/', auth, async (req, res) => {
     try {
         const id = req.user.id;
         const all = JSON.parse(req.query.all);
+        const recipe = JSON.parse(req.query.recipe);
+        const name = req.query.name;
+        if (recipe && name !== 'none') {
+            const recipe = await Recipe.findOne({user: id, name: name});
+            if (!recipe) {
+                return res.status(404).json({msgs: [{msg: 'Correlative Ingredient Not Found'}], error: true})
+            }
+            return res.json({data: recipe, error: false});
+        }
         var ingredients;
         if (all) {
             ingredients = await Ingredient.find({user: id});

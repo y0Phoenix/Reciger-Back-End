@@ -12,6 +12,10 @@ const IngredientSchema = new mon.Schema({
     price: {
         type: String
     },
+    type: {
+        type: String,
+        default: 'ingredient'
+    },
     units: {
         prefered: {
             type: String,

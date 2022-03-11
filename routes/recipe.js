@@ -29,7 +29,8 @@ async function createIngredient(params, res) {
         units,
         categories,
         calories: calories.g,
-        nutrients: nutrients.g
+        nutrients: nutrients.g,
+        type: 'recipe'
     });
     await ingredient.save();
 }
@@ -75,7 +76,7 @@ router.post('/', auth, [
                     await Ingredient.findOneAndUpdate({name: name, user: user}, 
                         {$set: {name, price: `$${parseFloat((parseFloat(price.split('$').join('')) / totalAmount).toFixed(5))}`,
                         user: user, units: units, categories, calories: calories.g, 
-                        nutrients: nutrients.g}}, {new: true});
+                        nutrients: nutrients.g, type: 'recipe'}}, {new: true});
                     }
                     ingredient = await Ingredient.findOne({name: name, user: user});
                     if (!ingredient) return res.json({msgs: [{msg: 'Error While Updating Ingredient Version Of Recipe'}]});
@@ -114,7 +115,8 @@ router.post('/', auth, [
                 units,
                 categories,
                 calories: calories.g,
-                nutrients: nutrients.g
+                nutrients: nutrients.g,
+                type: 'recipe'
             });
             await ingredient.save();
         }
@@ -167,8 +169,7 @@ router.delete('/:id', auth, async (req, res) => {
             return res.status(400).json({msgs: [{msg: 'Recipe Not Found Try Again Later'}], error: true});
         }
         if (recipe.type === 'ingredient') {
-            const ingredient = await Ingredient.findOneAndDelete({name: recipe.name, user: req.user});
-            if (ingredient) { console.log('failed to delete ingredient') }
+            await Ingredient.findOneAndDelete({name: recipe.name, user: req.user});
         }
         await updateUserRecents(req.user, 'recipes', recipe, true);
         await Recipe.findByIdAndDelete(id);
