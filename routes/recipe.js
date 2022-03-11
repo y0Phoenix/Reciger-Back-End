@@ -96,14 +96,14 @@ router.post('/', auth, [
             user,
             categories,
             yield,
-            calories: calories.total,
+            calories: calories,
             nutrients,
             instructions,
             totalAmount,
             type: Correlative ? 'ingredient' : 'recipe'
         });
         if (Correlative) {
-            let ingredient = Ingredient.findOne({name: name, user: user});
+            let ingredient = await Ingredient.findOne({name: name, user: user});
             if (ingredient) {
                 return res.json({msgs: [{msg: 'Ingredient Already Exists For This Recipe'}]});
             }
