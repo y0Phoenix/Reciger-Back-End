@@ -238,7 +238,7 @@ router.delete('/:id', auth, async (req, res) => {
                 await recipe.save();
             }
         }
-        const ingredients = await Ingredient.find({user: req.user.id}).select({units: 0, calories: 0, nutrients: 0, __v: 0});
+        const ingredients = await Ingredient.find({user: req.user.id});
         res.json({msgs: [{msg: `Ingredient ${ingredient.name} Deleted Successfully`}], error: false, data: ingredients});
     }
     catch(err) {
