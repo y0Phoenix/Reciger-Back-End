@@ -94,9 +94,7 @@ router.get('/passwordreq/:token', async (req, res) => {
                 from: config.get('nodemailerEmail'),
                 to: email,
                 subject: 'Password Change',
-                text: `Please Don't Reply To This Email\n
-                Click here to change your password\n 
-                http://localhost:3000/password/${token}`,
+                text: `Please Don't Reply To This Email\n\nClick here to change your password\nhttp://localhost:3000/password/${token}`,
 
             });
             res.json({isAuthenticated: true, error: false});
