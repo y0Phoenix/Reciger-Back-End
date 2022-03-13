@@ -84,7 +84,7 @@ router.post('/', [
         }
     } catch (err) {
         console.error(err);
-        res.status(500).json({msg: 'Server Error U4', error: true})
+        res.status(500).json({msgs: [{msg: 'Server Error U4'}], error: true})
     }
 });
 
@@ -122,7 +122,7 @@ router.post('/update', auth, async (req, res) => {
     }
     catch(err) {
         console.error(err);
-        res.status(500).json({msg: 'Server Error U2', error: true});
+        res.status(500).json({msgs: [{msg: 'Server Error U2'}], error: true});
     }
 });
 
@@ -153,7 +153,7 @@ router.delete('/', auth, async (req, res) => {
     }
     catch(err) {
         console.error(err);
-        res.status(500).json({msg: 'Server Error U5', error: true});
+        res.status(500).json({msgs: [{msg: 'Server Error U5'}], error: true});
     }
 })
 

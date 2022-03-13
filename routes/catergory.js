@@ -48,7 +48,7 @@ router.get('/', auth, async (req, res) => {
     }
     catch(err) {
         console.error(err);
-        res.status(500).json({msg: 'Server Error C2', error: true});
+        res.status(500).json({msgs: [{msg: 'Server Error C2'}], error: true});
     }
 });
 
@@ -108,7 +108,7 @@ router.delete('/', auth, async (req, res) => {
     }
     catch(err) {
         console.error(err);
-        res.status(500).json({msg: 'Server Error C3', error: true});
+        res.status(500).json({msgs: [{msg: 'Server Error C3'}], error: true});
     }
 
 });

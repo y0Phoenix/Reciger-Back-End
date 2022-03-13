@@ -41,6 +41,10 @@ const UserSchema = new mon.Schema({
         unique: true,
         required: true
     },
+    changepass: {
+        type: String,
+        default: ''
+    },
     recents: {
         ingredients: [{
             ing: {

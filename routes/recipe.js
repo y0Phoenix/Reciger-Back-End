@@ -128,7 +128,7 @@ router.post('/', auth, [
         
     } catch (err) {
         console.error(err);
-        res.status(500).json({msg: 'Server Error R2', errror: true});
+        res.status(500).json({msgs: [{msg: 'Server Error R2'}], errror: true});
     }
 });
 
@@ -152,7 +152,7 @@ router.get('/', auth, async (req, res) => {
         res.json({data: recipes});
     } catch (err) {
         console.error(err);
-        res.status(500).json({msg: 'Server Error R1', error: true});
+        res.status(500).json({msgs: [{msg: 'Server Error R1'}], error: true});
     }
 });
 
@@ -178,7 +178,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
     catch(err) {
         console.error(err);
-        res.status(500).json({msg: 'Server Error R4', error: true});
+        res.status(500).json({msgs: [{msg: 'Server Error R4'}], error: true});
     }
 });
 
