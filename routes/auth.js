@@ -126,9 +126,9 @@ router.post('/email', async (req, res) => {
     try {
         const {email, original} = req.body;
         const get = original ? original : email;
-        const user = await User.findOne({get});
+        const user = await User.findOne({email: get});
         if (!user) return res.status(403).json({msgs: [{msg: 'No User Associated With Email'}], error: true});
-        user.verify.email.email = email;
+        user.verify.email.value = email;
         const payload = {
             email: email,
             user: user.id
@@ -172,6 +172,8 @@ router.get('/email/:token', async (req, res) => {
         if (token !== user.verify.email.token) return res.status(403).json({msgs: [{msg: 'Token Is Invalid Not Authorized.\nTry Resending Email Verification'}], error: true});
         user.email = decoded.email;
         user.verify.email.bool = true;
+        user.verify.email.value = '';
+        user.verify.email.token = '';
         await user.save();
         res.json({msgs: [{msg: 'Email Verified Successfully You May Close This Page'}], error: false});
     }

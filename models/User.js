@@ -47,7 +47,7 @@ const UserSchema = new mon.Schema({
     },
     verify: {
         email: {
-            email: {
+            value: {
                 type: String,
                 default: ''
             },
