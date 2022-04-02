@@ -57,6 +57,7 @@ router.post('/', auth, [
 
         var price = await updateRecipePrice(ingredients, req.user.preferences.money);
         ingredients = await updateIngredientIng(ingredients);
+        
         ingredients = await updateRIT(ingredients);
         const {calories, nutrients, totalAmount} = await updateRecipeNutrients(ingredients);
 

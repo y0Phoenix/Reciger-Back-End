@@ -46,6 +46,10 @@ const RecipeSchema = new mon.Schema({
         ing: {
             type: mon.Schema.Types.ObjectId
         },
+        instructions: {
+            type: String,
+            default: ''
+        },
         categories: {
             type: [String],
             default: []
