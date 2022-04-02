@@ -46,11 +46,11 @@ router.post('/', [
         console.log(req.body);
     } catch (err) {
         console.error(err);
-        res.status(400).json({msg: 'Server Error U1', error: true});
+        res.status(500).json({msg: 'Server Error U1', error: true});
     }
 });
 
-router.get('/:token', async (req, res) => {
+router.get('/get/:token', async (req, res) => {
     try {
         const decoded = jwt.verify(req.params.token, config.get('jwtSecret'));
         const user = await User.findById(decoded.user.id).select({password: 0});
@@ -64,18 +64,15 @@ router.get('/:token', async (req, res) => {
 });
 
 // @get initiate password change request process
-router.get('/passwordreq/:token', async (req, res) => {
+router.get('/passwordreq', async (req, res) => {
     try {
-        const token = req.params.token;
         const email = req.query.email;
-        const decoded = jwt.verify(token, config.get('jwtSecret'));
-        const user = await User.findById(decoded.user.id);
-        if (!user) return res.status(404).json({isAuthenticated: false, msgs: [{msg: 'User Not Authenticated'}], error: true});
+        if (!email) return res.status(400).json({isAuthenticated: false, msgs: [{msg: 'Error Try Again Later'}], error: true});
+        const user = await User.findOne({email});
+        if (!user) return res.status(404).json({isAuthenticated: false, msgs: [{msg: `No User Associated With ${email}`}], error: true});
         const payload = {
             type: "changepassword",
-            user: {
-                id: user.id
-            }
+            user: user.id
         };
         jwt.sign(payload, config.get('jwtSecret'), {expiresIn: '1h'}, async (err, token) => {
             if (err) throw err;
@@ -105,24 +102,83 @@ router.get('/passwordreq/:token', async (req, res) => {
 });
 
 // @post finish password change process
-router.post('/changepassword/:token', auth, async (req, res) => {
+router.post('/changepassword/:token', async (req, res) => {
     try {
         const token = req.params.token;
-        const { newPass, oldPass } = req.body;
+        const { newPass } = req.body;
         const decoded = jwt.verify(token, config.get('jwtSecret'));
-        const bool = await bc.compare(oldPass, req.user.password);
-
-        if (decoded.user.id !== req.user.id || req.user.changepass !== token || !bool) return res.status(403).json({msgs: [{msg: 'User Not Authorized'}], error: true});
+        const user = await User.findById(decoded.user);
+        if (user.changepass !== token) return res.status(403).json({msgs: [{msg: 'User Not Authorized'}], error: true});
 
         const salt = await bc.genSalt(10);
-        req.user.password = await bc.hash(newPass, salt);
-        req.user.changepass = '';
-        await req.user.save();
+        user.password = await bc.hash(newPass, salt);
+        user.changepass = '';
+        await user.save();
 
         res.json({msgs: [{msg: 'Password Changed Successfully'}], error: false});
     } catch (err) {
         res.status(500).json({msgs: [{msg: 'Server Error U7'}], error: true});
     }
-})
+});
+
+// @post initiate email verification
+router.post('/email', async (req, res) => {
+    try {
+        const {email, original} = req.body;
+        const get = original ? original : email;
+        const user = await User.findOne({get});
+        if (!user) return res.status(403).json({msgs: [{msg: 'No User Associated With Email'}], error: true});
+        user.verify.email.email = email;
+        const payload = {
+            email: email,
+            user: user.id
+        };
+        jwt.sign(payload, config.get('jwtSecret'), {expiresIn: '1h'}, async (err, token) => {
+            if (err) throw err;
+            user.verify.email.token = token;
+            user.verify.email.bool = true;
+            await user.save();
+            let transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 465,
+                secure: false,
+                service: 'Gmail',
+                auth: {
+                    user: config.get('nodemailerEmail'),
+                    pass: config.get('nodemailerPass'),
+                }, 
+            });
+            await transporter.sendMail({
+                from: config.get('nodemailerEmail'),
+                to: email,
+                subject: 'Verify Email',
+                text: `Please Don't Reply To This Email\n\nClick here to verify your email\nhttp://localhost:3000/verifyemail/${token}`,
+            });
+            res.json({msgs: [{msg: 'Check Your Email For The Verification Link'}], isAuthenticated: true, error: false});
+        });
+
+    } catch (err) {
+        res.status(500).json({msgs: [{msg: 'Server Error U8'}], error: true});
+    }
+});
+
+// @get finish email verification
+router.get('/email/:token', async (req, res) => {
+    try {
+        const token = req.params.token;
+        const decoded = jwt.verify(token, config.get('jwtSecret'));
+        const user = await User.findById(decoded.user);
+        if (!user) return res.status(403).json({msgs: [{msg: 'Token Is Invalid Not Authorized.\nTry Resending Email Verification'}], error: true});
+        if (token !== user.verify.email.token) return res.status(403).json({msgs: [{msg: 'Token Is Invalid Not Authorized.\nTry Resending Email Verification'}], error: true});
+        user.email = decoded.email;
+        user.verify.email.bool = true;
+        await user.save();
+        res.json({msgs: [{msg: 'Email Verified Successfully You May Close This Page'}], error: false});
+    }
+    catch(err) {
+        console.error(err);
+        res.status(500).json({msgs: [{msg: 'Server Error U9'}], error: true});
+    }
+});
 
 module.exports = router;

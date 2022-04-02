@@ -45,6 +45,22 @@ const UserSchema = new mon.Schema({
         type: String,
         default: ''
     },
+    verify: {
+        email: {
+            email: {
+                type: String,
+                default: ''
+            },
+            token: {
+                type: String,
+                default: ''
+            },
+            bool: {
+                type: Boolean,
+                default: false
+            }
+        }
+    },
     recents: {
         ingredients: [{
             ing: {
