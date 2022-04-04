@@ -136,7 +136,7 @@ router.post('/email', async (req, res) => {
         jwt.sign(payload, config.get('jwtSecret'), {expiresIn: '1h'}, async (err, token) => {
             if (err) throw err;
             user.verify.email.token = token;
-            user.verify.email.bool = true;
+            user.verify.email.bool = false;
             await user.save();
             let transporter = nodemailer.createTransport({
                 host: "smtp.gmail.com",
