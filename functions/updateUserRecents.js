@@ -16,7 +16,6 @@ async function updateUserRecents(user, type, data, del = false) {
             const yield = `${data.yield.number} ${data.yield.string}`;
             user.recents[type].unshift({rec: data.id, name: data.name, categories: data.categories, calories: data.calories.total, price: data.price, yield: yield, date: Date.now()});
         }     
-
     }
     else {
         if (user.recents[type].length >= 3) {
