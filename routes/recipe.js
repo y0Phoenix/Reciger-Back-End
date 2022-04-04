@@ -76,6 +76,7 @@ router.post('/', auth, [
                 else {
                     await Ingredient.findOneAndUpdate({name: name, user: user}, 
                         {$set: {name, price: `$${parseFloat((parseFloat(price.split('$').join('')) / totalAmount).toFixed(5))}`,
+
                         user: user, units: units, categories, calories: calories.g, 
                         nutrients: nutrients.g, type: 'recipe'}}, {new: true});
                     }
